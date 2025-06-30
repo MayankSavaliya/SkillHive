@@ -1,7 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { auth } from "@/config/firebase";
 
-const USERS_API = "http://localhost:8080/api/v1/user";
+const USERS_API = "http://localhost:8080/user";
+// const USERS_API = "https://skillhive-backend.vercel.app/user";
 
 export const userApi = createApi({
   reducerPath: "userApi",

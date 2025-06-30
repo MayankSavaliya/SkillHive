@@ -65,14 +65,14 @@ const Landing = () => {
   ];
 
   const categories = [
-    { name: "Web Development", courses: "1,200+ courses", icon: "💻" },
-    { name: "Data Science", courses: "800+ courses", icon: "📊" },
-    { name: "Business", courses: "900+ courses", icon: "💼" },
-    { name: "Design", courses: "600+ courses", icon: "🎨" },
-    { name: "Marketing", courses: "500+ courses", icon: "📈" },
-    { name: "Photography", courses: "400+ courses", icon: "📸" },
-    { name: "Music", courses: "300+ courses", icon: "🎵" },
-    { name: "Language", courses: "250+ courses", icon: "🌍" }
+    { name: "Web Development", courses: "850+ courses", icon: "🌐" },
+    { name: "Frontend Development", courses: "720+ courses", icon: "⚛️" },
+    { name: "Backend Development", courses: "650+ courses", icon: "🔧" },
+    { name: "Full Stack Development", courses: "580+ courses", icon: "🚀" },
+    { name: "Mobile Development", courses: "450+ courses", icon: "📱" },
+    { name: "Data Science", courses: "400+ courses", icon: "📊" },
+    { name: "Machine Learning", courses: "350+ courses", icon: "🤖" },
+    { name: "UI/UX Design", courses: "480+ courses", icon: "🎨" }
   ];
 
   const testimonials = [

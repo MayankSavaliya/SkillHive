@@ -15,17 +15,19 @@ import { X } from "lucide-react";
 import React, { useState } from "react";
 
 const categories = [
-  { id: "nextjs", label: "Next JS" },
-  { id: "data science", label: "Data Science" },
-  { id: "frontend development", label: "Frontend Development" },
-  { id: "fullstack development", label: "Fullstack Development" },
-  { id: "mern stack development", label: "MERN Stack Development" },
-  { id: "backend development", label: "Backend Development" },
-  { id: "javascript", label: "Javascript" },
-  { id: "python", label: "Python" },
-  { id: "docker", label: "Docker" },
-  { id: "mongodb", label: "MongoDB" },
-  { id: "html", label: "HTML" },
+  { id: "web-development", label: "Web Development" },
+  { id: "frontend-development", label: "Frontend Development" },
+  { id: "backend-development", label: "Backend Development" },
+  { id: "full-stack-development", label: "Full Stack Development" },
+  { id: "mobile-development", label: "Mobile Development" },
+  { id: "data-science", label: "Data Science" },
+  { id: "machine-learning", label: "Machine Learning" },
+  { id: "devops", label: "DevOps & Cloud" },
+  { id: "ui-ux-design", label: "UI/UX Design" },
+  { id: "database", label: "Database Management" },
+  { id: "cybersecurity", label: "Cybersecurity" },
+  { id: "programming", label: "Programming Languages" },
+  { id: "business", label: "Business & Management" },
 ];
 
 const Filter = ({ handleFilterChange }) => {

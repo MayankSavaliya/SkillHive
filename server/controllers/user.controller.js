@@ -6,7 +6,14 @@ import { CoursePurchase } from "../models/coursePurchase.model.js";
 export const getUserProfile = async (req,res) => {
     try {
         const userId = req.user._id;
-        const user = await User.findById(userId).select("-password").populate("enrolledCourses");
+        console.log("HI");
+        const user = await User.findById(userId).select("-password").populate({
+            path: "enrolledCourses",
+            populate: {
+                path: "creator",
+                select: "name photoUrl"
+            }
+        });
         if(!user){
             return res.status(404).json({
                 message:"Profile not found",

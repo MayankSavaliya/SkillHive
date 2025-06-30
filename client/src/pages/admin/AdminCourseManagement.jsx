@@ -203,12 +203,18 @@ const AdminCourseManagement = () => {
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
                 <SelectItem value="Web Development">Web Development</SelectItem>
+                <SelectItem value="Frontend Development">Frontend Development</SelectItem>
+                <SelectItem value="Backend Development">Backend Development</SelectItem>
+                <SelectItem value="Full Stack Development">Full Stack Development</SelectItem>
                 <SelectItem value="Mobile Development">Mobile Development</SelectItem>
                 <SelectItem value="Data Science">Data Science</SelectItem>
                 <SelectItem value="Machine Learning">Machine Learning</SelectItem>
-                <SelectItem value="Design">Design</SelectItem>
-                <SelectItem value="Business">Business</SelectItem>
-                <SelectItem value="Marketing">Marketing</SelectItem>
+                <SelectItem value="DevOps & Cloud">DevOps & Cloud</SelectItem>
+                <SelectItem value="UI/UX Design">UI/UX Design</SelectItem>
+                <SelectItem value="Database Management">Database Management</SelectItem>
+                <SelectItem value="Cybersecurity">Cybersecurity</SelectItem>
+                <SelectItem value="Programming Languages">Programming Languages</SelectItem>
+                <SelectItem value="Business & Management">Business & Management</SelectItem>
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={handleStatusFilter}>

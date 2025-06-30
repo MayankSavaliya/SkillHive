@@ -12,9 +12,17 @@ import {
 import React from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { useGetInstructorAnalyticsQuery, useGetInstructorMessagesQuery } from "@/features/api/instructorApi";
 
 const Sidebar = () => {
   const location = useLocation();
+  
+  // Fetch real data for sidebar stats
+  const { data: analyticsData } = useGetInstructorAnalyticsQuery();
+  const { data: messagesData } = useGetInstructorMessagesQuery();
+  
+  const analytics = analyticsData?.analytics || {};
+  const unreadCount = messagesData?.unreadCount || 0;
   
   const sidebarItems = [
     {
@@ -39,36 +47,18 @@ const Sidebar = () => {
       to: "students",
       icon: Users,
       label: "Students",
-      badge: "12"
+      badge: analytics.totalStudents ? analytics.totalStudents.toString() : null
     },
     {
       to: "messages",
       icon: MessageSquare,
       label: "Messages",
-      badge: "5"
-    },
-    {
-      to: "schedule",
-      icon: Calendar,
-      label: "Schedule",
-      badge: null
-    },
-    {
-      to: "notifications",
-      icon: Bell,
-      label: "Notifications",
-      badge: "3"
+      badge: unreadCount > 0 ? unreadCount.toString() : null
     },
     {
       to: "settings",
       icon: Settings,
-      label: "Settings",
-      badge: null
-    },
-    {
-      to: "help",
-      icon: HelpCircle,
-      label: "Help & Support",
+      label: "Profile & Settings",
       badge: null
     }
   ];
@@ -138,15 +128,21 @@ const Sidebar = () => {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-400">Active Courses:</span>
-                <span className="font-medium text-blue-600 dark:text-blue-400">8</span>
+                <span className="font-medium text-blue-600 dark:text-blue-400">
+                  {analytics.publishedCourses || 0}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-400">Total Students:</span>
-                <span className="font-medium text-green-600 dark:text-green-400">324</span>
+                <span className="font-medium text-green-600 dark:text-green-400">
+                  {analytics.totalStudents || 0}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-400">This Month:</span>
-                <span className="font-medium text-purple-600 dark:text-purple-400">₹45,200</span>
+                <span className="font-medium text-purple-600 dark:text-purple-400">
+                  ₹{analytics.currentMonthRevenue?.toLocaleString() || '0'}
+                </span>
               </div>
             </div>
           </div>

@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/config/firebase';
-import { userLoggedIn, userLoggedOut } from '@/features/authSlice';
-import { useFirebaseAuthMutation } from '@/features/api/authApi';
+import { userLoggedIn, userLoggedOut, updateToken } from '@/features/authSlice';
+import { useFirebaseAuthMutation, useLoadUserQuery } from '@/features/api/authApi';
 
 const useAuthListener = () => {
   const [loading, setLoading] = useState(true);
@@ -28,7 +28,11 @@ const useAuthListener = () => {
           });
 
           if (response.data?.success) {
-            dispatch(userLoggedIn({ user: response.data.user }));
+            // Store both user data and Firebase token in Redux
+            dispatch(userLoggedIn({ 
+              user: response.data.user, 
+              token: token 
+            }));
           }
         } catch (error) {
           console.error('Auto-login failed:', error);
@@ -40,7 +44,23 @@ const useAuthListener = () => {
       setLoading(false);
     });
 
-    return unsubscribe;
+    // Set up token refresh every 30 minutes
+    const tokenRefreshInterval = setInterval(async () => {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        try {
+          const newToken = await currentUser.getIdToken(true); // Force refresh
+          dispatch(updateToken(newToken));
+        } catch (error) {
+          console.error('Token refresh failed:', error);
+        }
+      }
+    }, 30 * 60 * 1000); // 30 minutes
+
+    return () => {
+      unsubscribe();
+      clearInterval(tokenRefreshInterval);
+    };
   }, [dispatch, firebaseAuth]);
 
   return loading;

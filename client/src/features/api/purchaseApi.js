@@ -1,7 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { auth } from "@/config/firebase";
 
-const COURSE_PURCHASE_API = "http://localhost:8080/api/v1/purchase";
+const COURSE_PURCHASE_API = "http://localhost:8080/purchase";
+// const COURSE_PURCHASE_API = "https://skillhive-backend.vercel.app/purchase";
 
 export const purchaseApi = createApi({
   reducerPath: "purchaseApi",

@@ -17,7 +17,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-const MEDIA_API = "http://localhost:8080/api/v1/media";
+const MEDIA_API = "http://localhost:8080/media";
 
 const LectureTab = () => {
   const [lectureTitle, setLectureTitle] = useState("");
@@ -64,7 +64,7 @@ const LectureTab = () => {
         });
 
         if (res.data.success) {
-          console.log("Video upload response:", res.data);
+  
           setUploadVideoInfo({
             videoUrl: res.data.data.secure_url || res.data.data.url,
             publicId: res.data.data.public_id,
@@ -88,15 +88,18 @@ const LectureTab = () => {
   };
 
   const editLectureHandler = async () => {
-    console.log({ lectureTitle, uploadVideInfo, isFree, courseId, lectureId });
-
-    await edtiLecture({
-      lectureTitle,
-      videoInfo:uploadVideInfo,
-      isPreviewFree:isFree,
-      courseId,
-      lectureId,
-    });
+    const lectureData = { 
+      lectureTitle, 
+      uploadVideInfo, 
+      isFree, 
+      courseId, 
+      lectureId 
+    };
+    
+    const response = await edtiLecture(lectureData);
+    if (response.data) {
+      toast.success(response.data.message);
+    }
   };
 
   const removeLectureHandler = async () => {

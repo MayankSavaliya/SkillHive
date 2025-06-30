@@ -212,7 +212,7 @@ const CourseTable = () => {
                           <Button 
                             size="sm" 
                             variant="ghost" 
-                            onClick={() => {/* Add view course functionality */}}
+                            onClick={() => navigate(`view/${course._id}`)}
                             className="hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 transition-colors duration-200"
                           >
                             <Eye className="h-4 w-4 mr-1" />

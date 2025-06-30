@@ -29,8 +29,6 @@ const CourseProgress = () => {
   ] = useInCompleteCourseMutation();
 
   useEffect(() => {
-    console.log(markCompleteData);
-
     if (completedSuccess) {
       refetch();
       toast.success(markCompleteData.message || "🎉 Course completed!", {
@@ -51,8 +49,6 @@ const CourseProgress = () => {
 
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Failed to load course details</p>;
-
-  console.log(data);
 
   const { courseDetails, progress, completed } = data.data;
   const { courseTitle } = courseDetails;
@@ -75,12 +71,38 @@ const CourseProgress = () => {
     handleLectureProgress(lecture._id);
   };
 
-
   const handleCompleteCourse = async () => {
     await completeCourse(courseId);
   };
   const handleInCompleteCourse = async () => {
     await inCompleteCourse(courseId);
+  };
+
+  const markAsCompletedHandler = async (lectureId) => {
+    try {
+      const markCompleteData = {
+        courseId,
+        lectureId,
+      };
+      const response = await updateLectureProgress(markCompleteData);
+      if (response.data) {
+        refetch();
+      }
+    } catch (error) {
+      toast.error("Failed to mark lecture as completed");
+    }
+  };
+
+  const markAsInCompletedHandler = async (lectureId) => {
+    try {
+      const response = await inCompleteCourse(courseId);
+      
+      if (response.data) {
+        refetch();
+      }
+    } catch (error) {
+      toast.error("Failed to mark lecture as incomplete");
+    }
   };
 
   return (

@@ -1,5 +1,7 @@
 import { Course } from "../models/course.model.js";
 import { Lecture } from "../models/lecture.model.js";
+import { CoursePurchase } from "../models/coursePurchase.model.js";
+import notificationService from "../services/notificationService.js";
 import {deleteMediaFromCloudinary, deleteVideoFromCloudinary, uploadMedia} from "../utils/cloudinary.js";
 
 export const createCourse = async (req,res) => {
@@ -244,6 +246,8 @@ export const editLecture = async (req,res) => {
 
         console.log("Current lecture before update:", lecture);
 
+        const hadVideo = !!lecture.videoUrl;
+        
         // update lecture
         if(lectureTitle) lecture.lectureTitle = lectureTitle;
         if(videoInfo?.videoUrl) lecture.videoUrl = videoInfo.videoUrl;
@@ -255,11 +259,36 @@ export const editLecture = async (req,res) => {
         console.log("Updated lecture:", lecture);
 
         // Ensure the course still has the lecture id if it was not aleardy added;
-        const course = await Course.findById(courseId);
+        const course = await Course.findById(courseId).populate('creator', 'name');
         if(course && !course.lectures.includes(lecture._id)){
             course.lectures.push(lecture._id);
             await course.save();
         };
+
+        // 🔔 Send notification if video was just added (not just editing)
+        if (!hadVideo && videoInfo?.videoUrl) {
+            // Get enrolled students for this course
+            const enrolledStudents = await CoursePurchase.find({
+                courseId: courseId,
+                status: "completed"
+            }).distinct('userId');
+            
+            if (enrolledStudents.length > 0) {
+                await notificationService.createBulkNotifications({
+                    recipientIds: enrolledStudents,
+                    senderId: req.user._id,
+                    title: "New Lecture Available!",
+                    message: `A new lecture "${lecture.lectureTitle}" has been added to ${course.courseTitle}`,
+                    data: { 
+                        courseId: course._id,
+                        lectureId: lecture._id,
+                        lectureTitle: lecture.lectureTitle
+                    },
+                    actionUrl: `/course-progress/${course._id}`
+                });
+            }
+        }
+        
         return res.status(200).json({
             lecture,
             message:"Lecture updated successfully."
@@ -328,15 +357,41 @@ export const togglePublishCourse = async (req,res) => {
     try {
         const {courseId} = req.params;
         const {publish} = req.query; // true, false
-        const course = await Course.findById(courseId);
+        const course = await Course.findById(courseId).populate('creator', 'name');
         if(!course){
             return res.status(404).json({
                 message:"Course not found!"
             });
         }
+        
+        const wasPublished = course.isPublished;
         // publish status based on the query paramter
         course.isPublished = publish === "true";
         await course.save();
+
+        // 🔔 Send notifications when course is newly published
+        if (!wasPublished && course.isPublished) {
+            // Get students who have enrolled in instructor's other courses
+            const instructorCourses = await Course.find({ creator: req.user._id });
+            const courseIds = instructorCourses.map(c => c._id);
+            
+            const enrolledStudents = await CoursePurchase.find({
+                courseId: { $in: courseIds },
+                status: "completed"
+            }).distinct('userId');
+            
+            // Notify interested students about new course
+            if (enrolledStudents.length > 0) {
+                await notificationService.createBulkNotifications({
+                    recipientIds: enrolledStudents,
+                    senderId: req.user._id,
+                    title: "New Course Available!",
+                    message: `${course.creator.name} has published a new course: ${course.courseTitle}`,
+                    data: { courseId: course._id },
+                    actionUrl: `/course-detail/${course._id}`
+                });
+            }
+        }
 
         const statusMessage = course.isPublished ? "Published" : "Unpublished";
         return res.status(200).json({

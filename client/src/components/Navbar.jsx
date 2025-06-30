@@ -28,33 +28,28 @@ import { useFirebaseLogoutMutation } from "@/features/api/authApi";
 import { signOutUser } from "@/services/authService";
 import { toast } from "sonner";
 import { useSelector } from "react-redux";
+import NotificationBell from "./NotificationBell";
+import { useDispatch } from "react-redux";
+import { userLoggedOut } from "@/features/authSlice";
+import { signOut } from "firebase/auth";
+import { auth } from "@/config/firebase";
 
 const Navbar = () => {
   const { user } = useSelector((store) => store.auth);
   const [firebaseLogout] = useFirebaseLogoutMutation();
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   
   const logoutHandler = async () => {
     try {
-      // Sign out from Firebase
-      const firebaseResult = await signOutUser();
-      
-      // Sign out from backend
       await firebaseLogout();
-      
-      if (firebaseResult.success) {
-        toast.success("👋 You've been logged out successfully!", {
-          description: "See you again soon!",
-          duration: 3000,
-        });
-      }
+      await signOut(auth);
+      dispatch(userLoggedOut());
+      toast.success("Logged out successfully");
+      navigate("/");
     } catch (error) {
-      console.error('Logout error:', error);
-      toast.error("Logout failed", {
-        description: "Please try again.",
-        duration: 3000,
-      });
+      toast.error("Failed to logout");
     }
   };
 
@@ -87,7 +82,7 @@ const Navbar = () => {
             to="/courses" 
             className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
           >
-            Courses
+            Browse Courses
           </Link>
           <Link 
             to="/my-learning" 
@@ -95,24 +90,18 @@ const Navbar = () => {
           >
             My Learning
           </Link>
-          <Link 
-            to="/categories" 
-            className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
-          >
-            Categories
-          </Link>
         </div>
 
-        {/* Search Bar */}
-        <div className="flex-1 max-w-md mx-8">
+        {/* Search Bar - Larger Size */}
+        <div className="flex-1 max-w-xl mx-8">
           <form onSubmit={handleSearch} className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <Input
               type="text"
-              placeholder="Search for courses..."
+              placeholder="Search for courses, topics, or instructors..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="pl-12 pr-4 py-3 w-full text-base border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm"
             />
           </form>
         </div>
@@ -122,16 +111,7 @@ const Navbar = () => {
           {user ? (
             <>
               {/* Notifications */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
-              >
-                <Bell className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  3
-                </span>
-              </Button>
+              <NotificationBell />
 
               {/* User Menu */}
               <DropdownMenu>

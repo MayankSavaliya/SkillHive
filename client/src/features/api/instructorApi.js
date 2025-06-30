@@ -1,11 +1,12 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { auth } from "@/config/firebase";
 
-const INSTRUCTOR_API = "http://localhost:8080/api/v1";
+const INSTRUCTOR_API = "http://localhost:8080";
+// const INSTRUCTOR_API = "https://skillhive-backend.vercel.app";
 
 export const instructorApi = createApi({
   reducerPath: "instructorApi",
-  tagTypes: ["InstructorAnalytics"],
+  tagTypes: ["InstructorAnalytics", "InstructorStudents", "InstructorMessages"],
   baseQuery: fetchBaseQuery({
     baseUrl: INSTRUCTOR_API,
     credentials: "include",
@@ -47,13 +48,70 @@ export const instructorApi = createApi({
         url: "/instructor/students",
         method: "GET",
       }),
-      providesTags: ["InstructorAnalytics"],
+      providesTags: ["InstructorStudents"],
     }),
     
     // Get course performance metrics
     getCoursePerformance: builder.query({
       query: () => ({
         url: "/instructor/course-performance",
+        method: "GET",
+      }),
+      providesTags: ["InstructorAnalytics"],
+    }),
+
+    // Send message to student
+    sendMessageToStudent: builder.mutation({
+      query: ({ studentId, message, subject }) => ({
+        url: "/instructor/send-message",
+        method: "POST",
+        body: { studentId, message, subject },
+      }),
+      invalidatesTags: ["InstructorMessages"],
+    }),
+
+    // Get instructor messages/conversations
+    getInstructorMessages: builder.query({
+      query: () => ({
+        url: "/instructor/messages",
+        method: "GET",
+      }),
+      providesTags: ["InstructorMessages"],
+    }),
+
+    // Send announcement to all students
+    sendAnnouncement: builder.mutation({
+      query: ({ title, message, courseId }) => ({
+        url: "/instructor/send-announcement",
+        method: "POST",
+        body: { title, message, courseId },
+      }),
+      invalidatesTags: ["InstructorMessages"],
+    }),
+
+    // Get instructor dashboard summary
+    getInstructorDashboard: builder.query({
+      query: () => ({
+        url: "/instructor/dashboard",
+        method: "GET",
+      }),
+      providesTags: ["InstructorAnalytics"],
+    }),
+
+    // Update instructor profile
+    updateInstructorProfile: builder.mutation({
+      query: (profileData) => ({
+        url: "/instructor/profile",
+        method: "PUT",
+        body: profileData,
+      }),
+      invalidatesTags: ["InstructorAnalytics"],
+    }),
+
+    // Get instructor profile
+    getInstructorProfile: builder.query({
+      query: () => ({
+        url: "/instructor/profile",
         method: "GET",
       }),
       providesTags: ["InstructorAnalytics"],
@@ -66,4 +124,10 @@ export const {
   useGetInstructorRevenueQuery,
   useGetInstructorStudentsQuery,
   useGetCoursePerformanceQuery,
+  useSendMessageToStudentMutation,
+  useGetInstructorMessagesQuery,
+  useSendAnnouncementMutation,
+  useGetInstructorDashboardQuery,
+  useUpdateInstructorProfileMutation,
+  useGetInstructorProfileQuery,
 } = instructorApi;

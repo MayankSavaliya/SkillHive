@@ -105,42 +105,15 @@ const CourseTab = () => {
 
   const publishStatusHandler = async (action) => {
     try {
-      // Validate required fields before publishing
-      if (action === "true") {
-        const course = courseByIdData?.course;
-        if (!course.courseTitle || !course.subTitle || !course.description || !course.category || !course.courseLevel || !course.coursePrice) {
-          toast.error("❌ Please fill in all required fields before publishing", {
-            description: "Complete all course details to make it available to students.",
-            duration: 4000,
-          });
-          return;
-        }
-        if (course.lectures.length === 0) {
-          toast.error("❌ Please add at least one lecture before publishing", {
-            description: "Your course needs content before students can enroll.",
-            duration: 4000,
-          });
-          return;
-        }
-      }
-      
-      console.log("Publishing course with action:", action, "courseId:", courseId);
-      const response = await publishCourse({courseId, query:action});
-      console.log("Publish response:", response);
-      if(response.data){
-        toast.success(response.data.message || "📢 Course status updated!", {
-          description: action === "true" ? "Your course is now live for students!" : "Course has been unpublished successfully.",
-          duration: 3000,
-        });
+      const response = await publishCourse({ courseId, query: action });
+      if (response.data) {
+        refetch();
+        toast.success(response.data.message);
       }
     } catch (error) {
-      console.error("Publish error:", error);
-      toast.error("❌ " + (error?.data?.message || "Failed to publish or unpublish course"), {
-        description: "Please check your internet connection and try again.",
-        duration: 4000,
-      });
+      toast.error("Failed to update course status");
     }
-  }
+  };
 
   // Helper function to check if course is ready for publishing
   const isCourseReadyForPublishing = () => {
@@ -273,16 +246,19 @@ const CourseTab = () => {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Course Categories</SelectLabel>
-                      <SelectItem value="Next JS">Next.js</SelectItem>
-                      <SelectItem value="Data Science">Data Science</SelectItem>
-                      <SelectItem value="Frontend Development">Frontend Development</SelectItem>
-                      <SelectItem value="Fullstack Development">Fullstack Development</SelectItem>
-                      <SelectItem value="MERN Stack Development">MERN Stack Development</SelectItem>
-                      <SelectItem value="Javascript">JavaScript</SelectItem>
-                      <SelectItem value="Python">Python</SelectItem>
-                      <SelectItem value="Docker">Docker</SelectItem>
-                      <SelectItem value="MongoDB">MongoDB</SelectItem>
-                      <SelectItem value="HTML">HTML & CSS</SelectItem>
+                      <SelectItem value="Web Development">🌐 Web Development</SelectItem>
+                      <SelectItem value="Frontend Development">⚛️ Frontend Development</SelectItem>
+                      <SelectItem value="Backend Development">🔧 Backend Development</SelectItem>
+                      <SelectItem value="Full Stack Development">🚀 Full Stack Development</SelectItem>
+                      <SelectItem value="Mobile Development">📱 Mobile Development</SelectItem>
+                      <SelectItem value="Data Science">📊 Data Science</SelectItem>
+                      <SelectItem value="Machine Learning">🤖 Machine Learning</SelectItem>
+                      <SelectItem value="DevOps & Cloud">⚙️ DevOps & Cloud</SelectItem>
+                      <SelectItem value="UI/UX Design">🎨 UI/UX Design</SelectItem>
+                      <SelectItem value="Database Management">🗄️ Database Management</SelectItem>
+                      <SelectItem value="Cybersecurity">🔒 Cybersecurity</SelectItem>
+                      <SelectItem value="Programming Languages">💻 Programming Languages</SelectItem>
+                      <SelectItem value="Business & Management">💼 Business & Management</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>

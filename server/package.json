@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon index.js",
-    "dev:stripe": "concurrently \"npm run dev\" \"stripe listen --forward-to http://localhost:8080/api/v1/purchase/webhook\""
+    "start": "node index.js",
+    "dev:stripe": "concurrently \"npm run dev\" \"stripe listen --forward-to http://localhost:8080/purchase/webhook\""
   },
   "keywords": [],
   "author": "",
@@ -20,7 +21,9 @@
     "firebase-admin": "^13.4.0",
     "mongoose": "^8.8.0",
     "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.8",
     "nodemon": "^3.1.7",
+    "socket.io": "^4.7.4",
     "stripe": "^17.3.1"
   }
 }

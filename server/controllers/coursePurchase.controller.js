@@ -3,6 +3,7 @@ import { Course } from "../models/course.model.js";
 import { CoursePurchase } from "../models/coursePurchase.model.js";
 import { Lecture } from "../models/lecture.model.js";
 import { User } from "../models/user.model.js";
+import notificationService from "../services/notificationService.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -130,6 +131,38 @@ export const stripeWebhook = async (req, res) => {
         { $addToSet: { enrolledStudents: purchase.userId } }, // Add user ID to enrolledStudents
         { new: true }
       );
+
+      // 🔔 Send notifications for successful enrollment
+      const student = await User.findById(purchase.userId);
+      const course = purchase.courseId;
+      
+      // Notify instructor about new enrollment
+      await notificationService.createNotification({
+        recipientId: course.creator,
+        senderId: purchase.userId,
+        title: "New Student Enrollment!",
+        message: `${student.name} has enrolled in your course: ${course.courseTitle}`,
+        data: {
+          courseId: course._id,
+          studentId: purchase.userId,
+          amount: purchase.amount
+        },
+        actionUrl: `/instructor/course/${course._id}`
+      });
+
+      // Welcome notification to student
+      await notificationService.createNotification({
+        recipientId: purchase.userId,
+        senderId: course.creator,
+        title: "Welcome to your new course!",
+        message: `You've successfully enrolled in "${course.courseTitle}". Start learning now!`,
+        data: {
+          courseId: course._id
+        },
+        actionUrl: `/course-progress/${course._id}`
+      });
+
+
     } catch (error) {
       console.error("Error handling event:", error);
       return res.status(500).json({ message: "Internal Server Error" });

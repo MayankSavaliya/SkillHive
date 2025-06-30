@@ -86,7 +86,6 @@ const Login = () => {
           }
         }
       } catch (error) {
-        console.error('Firebase auth error:', error);
         toast.error("Authentication failed", {
           description: error.data?.message || "Please try again.",
           duration: 4000,
@@ -106,7 +105,7 @@ const Login = () => {
       const result = await signInWithGoogle();
       await handleFirebaseAuth(result, currentTab === "signup");
     } catch (error) {
-      console.error('Google sign-in error:', error);
+      toast.error('Google sign-in error:');
     } finally {
       setIsLoading(false);
     }
@@ -118,47 +117,15 @@ const Login = () => {
       const result = await signInWithFacebook();
       await handleFirebaseAuth(result, currentTab === "signup");
     } catch (error) {
-      console.error('Facebook sign-in error:', error);
+      toast.error('Facebook sign-in error:');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleEmailAuth = async (type) => {
-    setIsLoading(true);
-    try {
-      if (type === "signup") {
-        // Firebase email/password signup
-        const result = await signUpWithEmailPassword(
-          signupInput.email, 
-          signupInput.password, 
-          signupInput.name
-        );
-        await handleFirebaseAuth(result, true);
-        
-        if (result.success) {
-          setSignupInput({ name: "", email: "", password: "" });
-        }
-      } else {
-        // Firebase email/password login
-        const result = await signInWithEmailPassword(
-          loginInput.email, 
-          loginInput.password
-        );
-        await handleFirebaseAuth(result, false);
-      }
-    } catch (error) {
-      console.error('Email auth error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleRegistration = async (type) => {
-    const inputData = type === "signup" ? signupInput : loginInput;
-    
-    // Basic validation
+  const handleEmailPasswordAuth = async (type) => {
     if (type === "signup") {
+      // Validation
       if (!signupInput.name.trim()) {
         toast.error("Please enter your full name");
         return;
@@ -175,7 +142,29 @@ const Login = () => {
         toast.error("Password must be at least 6 characters long");
         return;
       }
+
+      setIsLoading(true);
+      const result = await signUpWithEmailPassword(
+        signupInput.email,
+        signupInput.password,
+        signupInput.name
+      );
+
+      if (result.success) {
+        await firebaseSignup({
+          idToken: result.token,
+          userData: {
+            name: signupInput.name,
+            email: signupInput.email
+          }
+        });
+      } else {
+        toast.error(result.error);
+      }
+      setIsLoading(false);
+
     } else {
+      // Login validation
       if (!loginInput.email.trim()) {
         toast.error("Please enter your email address");
         return;
@@ -184,10 +173,26 @@ const Login = () => {
         toast.error("Please enter your password");
         return;
       }
+
+      setIsLoading(true);
+      const result = await signInWithEmailPassword(loginInput.email, loginInput.password);
+
+      if (result.success) {
+        await firebaseAuth({
+          idToken: result.token
+        });
+      } else {
+        toast.error(result.error);
+      }
+      setIsLoading(false);
     }
+  };
+
+  const handleRegistration = async (type) => {
+    const inputData = type === "signup" ? signupInput : loginInput;
     
     // Use Firebase authentication
-    await handleEmailAuth(type);
+    await handleEmailPasswordAuth(type);
   };
 
   return (

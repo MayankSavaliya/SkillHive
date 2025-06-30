@@ -1,6 +1,7 @@
 import { Course } from "../models/course.model.js";
 import { CoursePurchase } from "../models/coursePurchase.model.js";
 import { User } from "../models/user.model.js";
+import NotificationService from "../services/notificationService.js";
 
 // Get instructor analytics overview
 export const getInstructorAnalytics = async (req, res) => {
@@ -292,6 +293,351 @@ export const getCoursePerformance = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to get course performance data"
+    });
+  }
+};
+
+// Get comprehensive instructor dashboard data
+export const getInstructorDashboard = async (req, res) => {
+  try {
+    const instructorId = req.user._id;
+
+    // Get instructor's courses
+    const courses = await Course.find({ creator: instructorId });
+    const courseIds = courses.map(course => course._id);
+
+    // Get all purchases for instructor's courses
+    const purchases = await CoursePurchase.find({
+      courseId: { $in: courseIds },
+      status: "completed"
+    }).populate('courseId').populate('userId');
+
+    // Calculate comprehensive metrics
+    const totalRevenue = purchases.reduce((sum, purchase) => sum + (purchase.amount || 0), 0);
+    const totalSales = purchases.length;
+    const totalCourses = courses.length;
+    const publishedCourses = courses.filter(course => course.isPublished).length;
+    
+    // Get unique students
+    const uniqueStudents = [...new Set(purchases.map(p => p.userId._id.toString()))];
+    const totalStudents = uniqueStudents.length;
+
+    // Recent activity (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const recentPurchases = purchases.filter(p => new Date(p.createdAt) >= thirtyDaysAgo);
+    const recentRevenue = recentPurchases.reduce((sum, purchase) => sum + (purchase.amount || 0), 0);
+    const newStudentsThisMonth = [...new Set(recentPurchases.map(p => p.userId._id.toString()))].length;
+
+    // Top performing courses
+    const coursePerformance = {};
+    purchases.forEach(purchase => {
+      const courseId = purchase.courseId._id.toString();
+      if (!coursePerformance[courseId]) {
+        coursePerformance[courseId] = {
+          courseTitle: purchase.courseId.courseTitle,
+          revenue: 0,
+          enrollments: 0
+        };
+      }
+      coursePerformance[courseId].revenue += purchase.amount || 0;
+      coursePerformance[courseId].enrollments += 1;
+    });
+
+    const topCourses = Object.values(coursePerformance)
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+
+    return res.status(200).json({
+      success: true,
+      dashboard: {
+        totalRevenue,
+        totalSales,
+        totalCourses,
+        publishedCourses,
+        totalStudents,
+        recentRevenue,
+        newStudentsThisMonth,
+        topCourses,
+        avgRating: 4.6, // Mock - can be enhanced with real ratings
+      }
+    });
+  } catch (error) {
+    console.error("Get instructor dashboard error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get instructor dashboard data"
+    });
+  }
+};
+
+// Get instructor messages/conversations
+export const getInstructorMessages = async (req, res) => {
+  try {
+    const instructorId = req.user._id;
+
+    // For now, return mock data since we don't have a Message model
+    // This can be enhanced with actual message/conversation system
+    const mockMessages = [
+      {
+        id: 1,
+        student: {
+          name: "Alice Johnson",
+          email: "alice@example.com",
+          avatar: "AJ"
+        },
+        lastMessage: "Thank you for the detailed explanation about hooks!",
+        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+        unread: true,
+        priority: "high",
+        course: "React Fundamentals"
+      },
+      {
+        id: 2,
+        student: {
+          name: "Bob Smith",
+          email: "bob@example.com",
+          avatar: "BS"
+        },
+        lastMessage: "Could you review my assignment?",
+        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+        unread: false,
+        priority: "medium",
+        course: "Node.js Basics"
+      }
+    ];
+
+    return res.status(200).json({
+      success: true,
+      messages: mockMessages,
+      unreadCount: mockMessages.filter(m => m.unread).length
+    });
+  } catch (error) {
+    console.error("Get instructor messages error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get instructor messages"
+    });
+  }
+};
+
+// Send message to student
+export const sendMessageToStudent = async (req, res) => {
+  try {
+    const instructorId = req.user._id;
+    const { studentId, message, subject } = req.body;
+
+    if (!studentId || !message) {
+      return res.status(400).json({
+        success: false,
+        message: "Student ID and message are required"
+      });
+    }
+
+    // Verify student exists
+    const student = await User.findById(studentId);
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found"
+      });
+    }
+
+    // Create notification for the message
+    await NotificationService.createNotification({
+      recipientId: studentId,
+      senderId: instructorId,
+      type: 'message_received',
+      title: subject || 'New Message from Instructor',
+      message: message.length > 100 ? message.substring(0, 100) + '...' : message,
+      data: {
+        messageId: null, // Would be actual message ID when implementing full messaging
+        customData: {
+          fullMessage: message,
+          subject: subject
+        }
+      },
+      priority: 'medium',
+      category: 'message',
+      actionUrl: '/student/messages',
+      sendEmail: true
+    });
+
+    console.log(`Message from instructor ${instructorId} to student ${studentId}: ${message}`);
+
+    return res.status(200).json({
+      success: true,
+      message: "Message sent successfully"
+    });
+  } catch (error) {
+    console.error("Send message error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to send message"
+    });
+  }
+};
+
+// Send announcement to all students
+export const sendAnnouncement = async (req, res) => {
+  try {
+    const instructorId = req.user._id;
+    const { title, message, courseId } = req.body;
+
+    if (!title || !message) {
+      return res.status(400).json({
+        success: false,
+        message: "Title and message are required"
+      });
+    }
+
+    // Get instructor's courses
+    let targetCourses = [];
+    if (courseId && courseId !== 'all') {
+      const course = await Course.findOne({ _id: courseId, creator: instructorId });
+      if (!course) {
+        return res.status(404).json({
+          success: false,
+          message: "Course not found or not authorized"
+        });
+      }
+      targetCourses = [course];
+    } else {
+      targetCourses = await Course.find({ creator: instructorId });
+    }
+
+    const courseIds = targetCourses.map(course => course._id);
+
+    // Get all students enrolled in these courses
+    const purchases = await CoursePurchase.find({
+      courseId: { $in: courseIds },
+      status: "completed"
+    }).populate('userId');
+
+    const uniqueStudents = [...new Set(purchases.map(p => p.userId._id.toString()))];
+
+    // Create notifications for all students
+    if (uniqueStudents.length > 0) {
+      await NotificationService.createBulkNotifications({
+        recipientIds: uniqueStudents,
+        senderId: instructorId,
+        type: 'announcement',
+        title: title,
+        message: message,
+        data: {
+          courseId: courseId && courseId !== 'all' ? courseId : null,
+          customData: {
+            targetCourses: targetCourses.map(c => c.courseTitle).join(', ')
+          }
+        },
+        priority: 'medium',
+        category: 'general',
+        actionUrl: '/student/announcements',
+        sendEmail: true
+      });
+    }
+
+    console.log(`Announcement from instructor ${instructorId} to ${uniqueStudents.length} students: ${title} - ${message}`);
+
+    return res.status(200).json({
+      success: true,
+      message: `Announcement sent to ${uniqueStudents.length} students`,
+      recipients: uniqueStudents.length
+    });
+  } catch (error) {
+    console.error("Send announcement error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to send announcement"
+    });
+  }
+};
+
+// Get instructor profile
+export const getInstructorProfile = async (req, res) => {
+  try {
+    const instructorId = req.user._id;
+
+    // Get instructor details
+    const instructor = await User.findById(instructorId).select('-password');
+    if (!instructor) {
+      return res.status(404).json({
+        success: false,
+        message: "Instructor not found"
+      });
+    }
+
+    // Get instructor's courses for additional stats
+    const courses = await Course.find({ creator: instructorId });
+    const courseIds = courses.map(course => course._id);
+
+    // Get purchase stats
+    const purchases = await CoursePurchase.find({
+      courseId: { $in: courseIds },
+      status: "completed"
+    });
+
+    const totalRevenue = purchases.reduce((sum, purchase) => sum + (purchase.amount || 0), 0);
+    const totalStudents = [...new Set(purchases.map(p => p.userId.toString()))].length;
+
+    return res.status(200).json({
+      success: true,
+      profile: {
+        ...instructor.toObject(),
+        stats: {
+          totalCourses: courses.length,
+          publishedCourses: courses.filter(c => c.isPublished).length,
+          totalStudents,
+          totalRevenue,
+          avgRating: 4.6, // Mock - can be enhanced with real ratings
+          joinedDate: instructor.createdAt
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Get instructor profile error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get instructor profile"
+    });
+  }
+};
+
+// Update instructor profile
+export const updateInstructorProfile = async (req, res) => {
+  try {
+    const instructorId = req.user._id;
+    const updateData = req.body;
+
+    // Remove sensitive fields that shouldn't be updated via this endpoint
+    delete updateData.password;
+    delete updateData.role;
+    delete updateData._id;
+
+    const updatedInstructor = await User.findByIdAndUpdate(
+      instructorId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!updatedInstructor) {
+      return res.status(404).json({
+        success: false,
+        message: "Instructor not found"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      profile: updatedInstructor
+    });
+  } catch (error) {
+    console.error("Update instructor profile error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update instructor profile"
     });
   }
 };

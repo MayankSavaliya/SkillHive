@@ -11,7 +11,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useGetCourseDetailWithStatusQuery } from "@/features/api/purchaseApi";
 import { BadgeInfo, Lock, PlayCircle } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
 import ReactPlayer from "react-player";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -52,13 +52,19 @@ const CourseDetail = () => {
   );
 
   const { course, purchased } = data;
-  console.log(purchased);
 
   const handleContinueCourse = () => {
     if(purchased){
       navigate(`/course-progress/${courseId}`)
     }
   }
+
+  useEffect(() => {
+    if (purchased && course && course.lectures && course.lectures.length > 0) {
+      navigate(`/course-progress/${course._id}`);
+    }
+  }, [purchased, course, navigate]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50/30 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900">
       {/* Hero Section */}

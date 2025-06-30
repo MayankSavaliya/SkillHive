@@ -28,7 +28,22 @@ const CreateLecture = () => {
   } = useGetCourseLectureQuery(courseId);
 
   const createLectureHandler = async () => {
-    await createLecture({ lectureTitle, courseId });
+    const lectureData = {
+      lectureTitle,
+      videoInfo: uploadVideInfo,
+      isPreviewFree: isFree,
+      courseId,
+    };
+    
+    const response = await createLecture(lectureData);
+    if (response.data) {
+      toast.success(response.data.message);
+      // Reset form
+      setLectureTitle("");
+      setUploadVideInfo(null);
+      setIsFree(false);
+      navigate(`/instructor/course/${courseId}`);
+    }
   };
 
   useEffect(() => {

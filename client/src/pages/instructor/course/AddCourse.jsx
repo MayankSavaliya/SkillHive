@@ -84,16 +84,19 @@ const AddCourse = () => {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Categories</SelectLabel>
-                    <SelectItem value="Next JS">Next.js</SelectItem>
-                    <SelectItem value="Data Science">Data Science</SelectItem>
-                    <SelectItem value="Frontend Development">Frontend Development</SelectItem>
-                    <SelectItem value="Fullstack Development">Fullstack Development</SelectItem>
-                    <SelectItem value="MERN Stack Development">MERN Stack Development</SelectItem>
-                    <SelectItem value="Javascript">JavaScript</SelectItem>
-                    <SelectItem value="Python">Python</SelectItem>
-                    <SelectItem value="Docker">Docker</SelectItem>
-                    <SelectItem value="MongoDB">MongoDB</SelectItem>
-                    <SelectItem value="HTML">HTML & CSS</SelectItem>
+                    <SelectItem value="Web Development">🌐 Web Development</SelectItem>
+                    <SelectItem value="Frontend Development">⚛️ Frontend Development</SelectItem>
+                    <SelectItem value="Backend Development">🔧 Backend Development</SelectItem>
+                    <SelectItem value="Full Stack Development">🚀 Full Stack Development</SelectItem>
+                    <SelectItem value="Mobile Development">📱 Mobile Development</SelectItem>
+                    <SelectItem value="Data Science">📊 Data Science</SelectItem>
+                    <SelectItem value="Machine Learning">🤖 Machine Learning</SelectItem>
+                    <SelectItem value="DevOps & Cloud">⚙️ DevOps & Cloud</SelectItem>
+                    <SelectItem value="UI/UX Design">🎨 UI/UX Design</SelectItem>
+                    <SelectItem value="Database Management">🗄️ Database Management</SelectItem>
+                    <SelectItem value="Cybersecurity">🔒 Cybersecurity</SelectItem>
+                    <SelectItem value="Programming Languages">💻 Programming Languages</SelectItem>
+                    <SelectItem value="Business & Management">💼 Business & Management</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>

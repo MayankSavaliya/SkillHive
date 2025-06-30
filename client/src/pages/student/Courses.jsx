@@ -46,22 +46,22 @@ const Courses = () => {
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-200/20 dark:bg-purple-900/20 rounded-full blur-3xl"></div>
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">        {/* Hero Header Section */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 text-blue-700 dark:text-blue-300 px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 animate-fade-in">
-            <BookOpen className="h-5 w-5" />
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-semibold mb-6 shadow-lg backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 animate-fade-in">
+            <BookOpen className="h-4 w-4" />
             <span>Discover Amazing Courses</span>
           </div>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 dark:text-white mb-6 leading-tight tracking-tight">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight tracking-tight">
             Explore Our
             <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent animate-fade-in"> Course Library</span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
+          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed font-light">
             Choose from thousands of expertly crafted courses and accelerate your learning journey with industry professionals.
           </p>
         </div>        {/* Search and Filters Section */}
-        <div className="glass rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-6 md:p-8 mb-16 backdrop-blur-xl bg-white/70 dark:bg-gray-800/70">
-          <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center justify-between">
+        <div className="glass rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-5 md:p-6 mb-10 backdrop-blur-xl bg-white/70 dark:bg-gray-800/70">
+          <div className="flex flex-col xl:flex-row gap-5 items-start xl:items-center justify-between">
             {/* Search Section */}
             <div className="flex-1 max-w-2xl w-full">
               <form onSubmit={handleSearch} className="relative group">
@@ -92,12 +92,19 @@ const Courses = () => {
                 </SelectTrigger>
                 <SelectContent className="backdrop-blur-xl bg-white/95 dark:bg-gray-800/95 border border-gray-200/50 dark:border-gray-600/50 rounded-xl shadow-2xl">
                   <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="programming">💻 Programming</SelectItem>
-                  <SelectItem value="design">🎨 Design</SelectItem>
-                  <SelectItem value="business">💼 Business</SelectItem>
-                  <SelectItem value="marketing">📈 Marketing</SelectItem>
+                  <SelectItem value="web-development">🌐 Web Development</SelectItem>
+                  <SelectItem value="frontend-development">⚛️ Frontend Development</SelectItem>
+                  <SelectItem value="backend-development">🔧 Backend Development</SelectItem>
+                  <SelectItem value="full-stack-development">🚀 Full Stack Development</SelectItem>
+                  <SelectItem value="mobile-development">📱 Mobile Development</SelectItem>
                   <SelectItem value="data-science">📊 Data Science</SelectItem>
-                  <SelectItem value="photography">📸 Photography</SelectItem>
+                  <SelectItem value="machine-learning">🤖 Machine Learning</SelectItem>
+                  <SelectItem value="devops">⚙️ DevOps & Cloud</SelectItem>
+                  <SelectItem value="ui-ux-design">🎨 UI/UX Design</SelectItem>
+                  <SelectItem value="database">🗄️ Database Management</SelectItem>
+                  <SelectItem value="cybersecurity">🔒 Cybersecurity</SelectItem>
+                  <SelectItem value="programming">💻 Programming Languages</SelectItem>
+                  <SelectItem value="business">💼 Business & Management</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -135,7 +142,7 @@ const Courses = () => {
             </div>
           </div>
         </div>        {/* Results Stats */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
           <div className="text-gray-700 dark:text-gray-300 text-lg font-medium">
             {data?.courses ? (
               <span className="flex items-center gap-3">
@@ -255,27 +262,34 @@ const Courses = () => {
               </p>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
               {[
-                { name: "Programming", icon: "💻", count: "1,200+", color: "from-blue-500 to-cyan-500" },
-                { name: "Design", icon: "🎨", count: "800+", color: "from-purple-500 to-pink-500" },
-                { name: "Business", icon: "💼", count: "950+", color: "from-green-500 to-emerald-500" },
-                { name: "Marketing", icon: "📈", count: "600+", color: "from-orange-500 to-red-500" },
-                { name: "Data Science", icon: "📊", count: "500+", color: "from-indigo-500 to-purple-500" },
-                { name: "Photography", icon: "📸", count: "400+", color: "from-yellow-500 to-orange-500" }
-              ].map((category, index) => (
+                { name: "Web Development", icon: "🌐", count: "850+", color: "from-blue-500 to-cyan-500", category: "web-development" },
+                { name: "Frontend Dev", icon: "⚛️", count: "720+", color: "from-purple-500 to-pink-500", category: "frontend-development" },
+                { name: "Backend Dev", icon: "🔧", count: "650+", color: "from-green-500 to-emerald-500", category: "backend-development" },
+                { name: "Full Stack", icon: "🚀", count: "580+", color: "from-orange-500 to-red-500", category: "full-stack-development" },
+                { name: "Mobile Dev", icon: "📱", count: "450+", color: "from-indigo-500 to-purple-500", category: "mobile-development" },
+                { name: "Data Science", icon: "📊", count: "400+", color: "from-teal-500 to-cyan-500", category: "data-science" },
+                { name: "Machine Learning", icon: "🤖", count: "350+", color: "from-rose-500 to-pink-500", category: "machine-learning" },
+                { name: "DevOps", icon: "⚙️", count: "320+", color: "from-amber-500 to-orange-500", category: "devops" },
+                { name: "UI/UX Design", icon: "🎨", count: "480+", color: "from-violet-500 to-purple-500", category: "ui-ux-design" },
+                { name: "Database", icon: "🗄️", count: "280+", color: "from-emerald-500 to-teal-500", category: "database" },
+                { name: "Cybersecurity", icon: "🔒", count: "250+", color: "from-red-500 to-rose-500", category: "cybersecurity" },
+                { name: "Programming", icon: "💻", count: "900+", color: "from-blue-600 to-indigo-600", category: "programming" }
+              ].map((categoryItem, index) => (
                 <div 
                   key={index}
-                  className="group glass rounded-2xl p-6 text-center shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer border border-white/20 dark:border-gray-700/50 backdrop-blur-xl relative overflow-hidden"
+                  onClick={() => setCategory(categoryItem.category)}
+                  className="group glass rounded-2xl p-4 text-center shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer border border-white/20 dark:border-gray-700/50 backdrop-blur-xl relative overflow-hidden"
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
+                  <div className={`absolute inset-0 bg-gradient-to-br ${categoryItem.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
                   <div className="relative z-10">
-                    <div className="text-4xl mb-4 transform group-hover:scale-110 transition-transform duration-300">{category.icon}</div>
-                    <h3 className="font-bold text-gray-900 dark:text-white mb-2 text-sm group-hover:text-gray-800 dark:group-hover:text-gray-100 transition-colors duration-200">
-                      {category.name}
+                    <div className="text-3xl mb-3 transform group-hover:scale-110 transition-transform duration-300">{categoryItem.icon}</div>
+                    <h3 className="font-bold text-gray-900 dark:text-white mb-2 text-xs lg:text-sm group-hover:text-gray-800 dark:group-hover:text-gray-100 transition-colors duration-200">
+                      {categoryItem.name}
                     </h3>
                     <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                      {category.count} courses
+                      {categoryItem.count} courses
                     </p>
                   </div>
                 </div>

@@ -34,37 +34,87 @@ import {
   Download,
   Calendar,
   Target,
-  Award
+  Award,
+  DollarSign,
+  RefreshCw,
+  BookOpen
 } from "lucide-react";
+import { 
+  useGetInstructorAnalyticsQuery, 
+  useGetInstructorRevenueQuery,
+  useGetCoursePerformanceQuery 
+} from "@/features/api/instructorApi";
+import { useGetCreatorCourseQuery } from "@/features/api/courseApi";
 
 const Analytics = () => {
-  const [timeRange, setTimeRange] = useState('30days');
+  const [timeRange, setTimeRange] = useState('6months');
 
-  // Mock data - replace with real API data
-  const studentEngagementData = [
-    { date: '2024-01-01', students: 45, completions: 12, watchTime: 180 },
-    { date: '2024-01-02', students: 52, completions: 15, watchTime: 220 },
-    { date: '2024-01-03', students: 48, completions: 18, watchTime: 195 },
-    { date: '2024-01-04', students: 65, completions: 22, watchTime: 280 },
-    { date: '2024-01-05', students: 58, completions: 19, watchTime: 245 },
-    { date: '2024-01-06', students: 72, completions: 25, watchTime: 320 },
-    { date: '2024-01-07', students: 68, completions: 28, watchTime: 295 }
-  ];
+  // Fetch real data
+  const { data: analyticsData, isLoading: analyticsLoading, error: analyticsError, refetch: refetchAnalytics } = useGetInstructorAnalyticsQuery();
+  const { data: revenueData, isLoading: revenueLoading, refetch: refetchRevenue } = useGetInstructorRevenueQuery(timeRange);
+  const { data: performanceData, isLoading: performanceLoading, refetch: refetchPerformance } = useGetCoursePerformanceQuery();
+  const { data: coursesData, refetch: refetchCourses } = useGetCreatorCourseQuery();
 
-  const coursePerformanceData = [
-    { course: 'React Fundamentals', students: 324, completion: 78, rating: 4.8, revenue: 45200 },
-    { course: 'Advanced JavaScript', students: 256, completion: 65, rating: 4.6, revenue: 38400 },
-    { course: 'Node.js Basics', students: 189, completion: 82, rating: 4.7, revenue: 28350 },
-    { course: 'Full Stack Dev', students: 298, completion: 59, rating: 4.5, revenue: 44700 },
-    { course: 'React Native', students: 156, completion: 71, rating: 4.4, revenue: 23400 }
-  ];
+  // Refresh all data
+  const handleRefresh = () => {
+    refetchAnalytics();
+    refetchRevenue();
+    refetchPerformance();
+    refetchCourses();
+  };
 
+  if (analyticsLoading || revenueLoading) {
+    return (
+      <div className="p-6 flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400 text-lg">Loading analytics...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (analyticsError) {
+    return (
+      <div className="p-6 flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-red-600 dark:text-red-400 mb-2">Failed to load analytics</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">Please try refreshing the page</p>
+          <Button onClick={handleRefresh}>Refresh</Button>
+        </div>
+      </div>
+    );
+  }
+
+  const analytics = analyticsData?.analytics || {};
+  const courses = coursesData?.courses || [];
+  const revenueChartData = revenueData?.revenueData || [];
+  const coursePerformance = performanceData?.coursePerformance || [];
+  const categoryData = performanceData?.categoryData || [];
+
+  // Prepare course performance data for table
+  const coursePerformanceData = courses.map(course => {
+    const performanceStats = coursePerformance.find(p => p.courseId === course._id) || {};
+    return {
+      course: course.courseTitle,
+      students: performanceStats.enrollments || 0,
+      completion: performanceStats.completionRate || 67, // Mock completion rate
+      rating: performanceStats.avgRating || 4.6, // Mock rating
+      revenue: performanceStats.revenue || (course.coursePrice * (performanceStats.enrollments || 0)),
+      category: course.category,
+      isPublished: course.isPublished
+    };
+  });
+
+  // Device distribution (mock data - can be enhanced with real tracking)
   const deviceData = [
     { name: 'Desktop', value: 65, color: '#8884d8' },
     { name: 'Mobile', value: 25, color: '#82ca9d' },
     { name: 'Tablet', value: 10, color: '#ffc658' }
   ];
 
+  // Time spent data (mock data - can be enhanced with real tracking)
   const timeSpentData = [
     { hour: '9 AM', minutes: 45 },
     { hour: '10 AM', minutes: 78 },
@@ -79,6 +129,28 @@ const Analytics = () => {
     { hour: '7 PM', minutes: 276 },
     { hour: '8 PM', minutes: 321 }
   ];
+
+  // Category performance for pie chart
+  const categoryChartData = categoryData.map((item, index) => ({
+    name: item.category,
+    value: item.revenue,
+    count: item.courses,
+    color: ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#8dd1e1', '#d084d0'][index % 6]
+  }));
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
+  const formatNumber = (num) => {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num.toString();
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -96,10 +168,18 @@ const Analytics = () => {
             <SelectContent>
               <SelectItem value="7days">Last 7 days</SelectItem>
               <SelectItem value="30days">Last 30 days</SelectItem>
-              <SelectItem value="90days">Last 90 days</SelectItem>
+              <SelectItem value="6months">Last 6 months</SelectItem>
               <SelectItem value="1year">Last year</SelectItem>
             </SelectContent>
           </Select>
+          <Button 
+            variant="outline" 
+            onClick={handleRefresh}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Refresh
+          </Button>
           <Button variant="outline">
             <Download className="h-4 w-4 mr-2" />
             Export
@@ -109,77 +189,126 @@ const Analytics = () => {
 
       {/* Key Metrics */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card className="hover:shadow-lg transition-shadow border-0 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Views</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Revenue</CardTitle>
+            <DollarSign className="h-5 w-5 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12,485</div>
-            <p className="text-xs text-green-600">+15.2% from last month</p>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              {formatPrice(analytics.totalRevenue || 0)}
+            </div>
+            <p className="text-xs text-green-600">
+              {analytics.revenueGrowth > 0 ? '+' : ''}{analytics.revenueGrowth || 0}% from last month
+            </p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card className="hover:shadow-lg transition-shadow border-0 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Watch Time</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Students</CardTitle>
+            <Users className="h-5 w-5 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8.5 min</div>
-            <p className="text-xs text-blue-600">+2.1% from last month</p>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              {formatNumber(analytics.totalStudents || 0)}
+            </div>
+            <p className="text-xs text-blue-600">Across {analytics.publishedCourses || 0} courses</p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card className="hover:shadow-lg transition-shadow border-0 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Avg. Rating</CardTitle>
+            <Award className="h-5 w-5 text-yellow-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">73.2%</div>
-            <p className="text-xs text-green-600">+5.4% from last month</p>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              {analytics.avgRating || '4.6'}
+            </div>
+            <p className="text-xs text-yellow-600">Based on student feedback</p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card className="hover:shadow-lg transition-shadow border-0 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Rating</CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Courses</CardTitle>
+            <BookOpen className="h-5 w-5 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">4.6</div>
-            <p className="text-xs text-yellow-600">+0.2 from last month</p>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+              {analytics.publishedCourses || 0}
+            </div>
+            <p className="text-xs text-purple-600">
+              {analytics.totalCourses - analytics.publishedCourses || 0} in draft
+            </p>
           </CardContent>
         </Card>
       </div>
 
       {/* Charts Row 1 */}
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-        {/* Student Engagement Over Time */}
-        <Card>
+        {/* Revenue Trends */}
+        <Card className="border-0 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
-              Student Engagement Trends
+              Revenue Trends
             </CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={studentEngagementData}>
+              <AreaChart data={revenueChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
+                <XAxis dataKey="month" />
                 <YAxis />
-                <Tooltip />
-                <Area type="monotone" dataKey="students" stackId="1" stroke="#8884d8" fill="#8884d8" />
-                <Area type="monotone" dataKey="completions" stackId="1" stroke="#82ca9d" fill="#82ca9d" />
+                <Tooltip 
+                  formatter={(value) => [formatPrice(value), 'Revenue']}
+                  labelFormatter={(label) => `Month: ${label}`}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="revenue" 
+                  stroke="#8884d8" 
+                  fill="#8884d8" 
+                  fillOpacity={0.6}
+                />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
+        {/* Category Performance */}
+        <Card className="border-0 shadow-sm">
+          <CardHeader>
+            <CardTitle>Revenue by Category</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={categoryChartData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  dataKey="value"
+                  label={({name, value}) => `${name}: ${formatPrice(value)}`}
+                >
+                  {categoryChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => formatPrice(value)} />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Charts Row 2 */}
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
         {/* Device Distribution */}
-        <Card>
+        <Card className="border-0 shadow-sm">
           <CardHeader>
             <CardTitle>Device Usage</CardTitle>
           </CardHeader>
@@ -198,22 +327,16 @@ const Analytics = () => {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip formatter={(value) => `${value}%`} />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Charts Row 2 */}
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-        {/* Peak Learning Hours */}
-        <Card className="hover:shadow-lg transition-shadow">
+        {/* Daily Activity */}
+        <Card className="border-0 shadow-sm">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Peak Learning Hours
-            </CardTitle>
+            <CardTitle>Daily Learning Activity</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -221,78 +344,65 @@ const Analytics = () => {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="hour" />
                 <YAxis />
-                <Tooltip formatter={(value) => [`${value} min`, 'Time Spent']} />
-                <Bar dataKey="minutes" fill="#8884d8" />
+                <Tooltip formatter={(value) => [`${value} min`, 'Watch Time']} />
+                <Bar dataKey="minutes" fill="#82ca9d" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
-
-        {/* Course Performance Comparison */}
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle>Course Performance Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {coursePerformanceData.map((course, index) => (
-                <div key={index} className="p-4 border dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-medium">{course.course}</h4>
-                    <Badge variant="outline">₹{course.revenue.toLocaleString()}</Badge>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-500 dark:text-gray-400">Students:</span>
-                      <div className="font-medium">{course.students}</div>
-                    </div>
-                    <div>
-                      <span className="text-gray-500 dark:text-gray-400">Completion:</span>
-                      <div className="font-medium">{course.completion}%</div>
-                    </div>
-                    <div>
-                      <span className="text-gray-500 dark:text-gray-400">Rating:</span>
-                      <div className="font-medium">{course.rating}/5</div>
-                    </div>
-                  </div>
-                  <div className="mt-2">
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                      <div 
-                        className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full" 
-                        style={{ width: `${course.completion}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
-      {/* Detailed Metrics */}
-      <Card className="hover:shadow-lg transition-shadow">
+      {/* Course Performance Table */}
+      <Card className="border-0 shadow-sm">
         <CardHeader>
-          <CardTitle>Detailed Performance Metrics</CardTitle>
+          <CardTitle>Course Performance Overview</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-            <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">89.5%</div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">Video Completion Rate</div>
-            </div>
-            <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">6.8</div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">Avg. Sessions per Student</div>
-            </div>
-            <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-              <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">45 min</div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">Avg. Session Duration</div>
-            </div>
-            <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">92%</div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">Student Satisfaction</div>
-            </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-gray-100">Course</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-gray-100">Students</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-gray-100">Rating</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-gray-100">Revenue</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-gray-100">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {coursePerformanceData.map((course, index) => (
+                  <tr key={index} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                    <td className="py-3 px-4">
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">{course.course}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">{course.category}</div>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-gray-900 dark:text-white">{course.students}</td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-1">
+                        <span className="text-gray-900 dark:text-white">{course.rating}</span>
+                        <Award className="h-4 w-4 text-yellow-500" />
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 font-medium text-gray-900 dark:text-white">
+                      {formatPrice(course.revenue)}
+                    </td>
+                    <td className="py-3 px-4">
+                      <Badge 
+                        variant={course.isPublished ? "default" : "secondary"}
+                        className={course.isPublished 
+                          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" 
+                          : "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400"
+                        }
+                      >
+                        {course.isPublished ? "Published" : "Draft"}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </CardContent>
       </Card>

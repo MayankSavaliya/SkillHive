@@ -1,21 +1,24 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import "./App.css";
+import { Toaster } from "sonner";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import MainLayout from "./layout/MainLayout";
 import Courses from "./pages/student/Courses";
 import MyLearning from "./pages/student/MyLearning";
 import Profile from "./pages/student/Profile";
+import NotificationsPage from "./pages/student/NotificationsPage";
 import Sidebar from "./pages/instructor/Sidebar";
 import Dashboard from "./pages/instructor/Dashboard";
 import CourseTable from "./pages/instructor/course/CourseTable";
 import AddCourse from "./pages/instructor/course/AddCourse";
 import EditCourse from "./pages/instructor/course/EditCourse";
+import ViewCourse from "./pages/instructor/course/ViewCourse";
 import CreateLecture from "./pages/instructor/lecture/CreateLecture";
 import EditLecture from "./pages/instructor/lecture/EditLecture";
 import Students from "./pages/instructor/Students";
 import Analytics from "./pages/instructor/Analytics";
 import Messages from "./pages/instructor/Messages";
+import Settings from "./pages/instructor/Settings";
 import CourseDetail from "./pages/student/CourseDetail";
 import CourseProgress from "./pages/student/CourseProgress";
 import SearchPage from "./pages/student/SearchPage";
@@ -29,6 +32,7 @@ import {
 } from "./components/ProtectedRoutes";
 import PurchaseCourseProtectedRoute from "./components/PurchaseCourseProtectedRoute";
 import { ThemeProvider } from "./components/ThemeProvider";
+import NotificationProvider from "./components/NotificationProvider";
 import AdminSidebar from "./pages/admin/AdminSidebar";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUserManagement from "./pages/admin/AdminUserManagement";
@@ -96,6 +100,14 @@ const appRouter = createBrowserRouter(
         ),
       },
       {
+        path: "notifications",
+        element: (
+          <ProtectedRoute>
+            <NotificationsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: "course-detail/:courseId",
         element: (
           <ProtectedRoute>
@@ -140,6 +152,10 @@ const appRouter = createBrowserRouter(
             element: <EditCourse />,
           },
           {
+            path: "course/view/:courseId",
+            element: <ViewCourse />,
+          },
+          {
             path: "course/:courseId/lecture",
             element: <CreateLecture />,
           },
@@ -158,6 +174,10 @@ const appRouter = createBrowserRouter(
           {
             path: "messages",
             element: <Messages />,
+          },
+          {
+            path: "settings",
+            element: <Settings />,
           },
         ],
       },
@@ -212,7 +232,10 @@ const appRouter = createBrowserRouter(
 function App() {
   return (
     <main>
-      <RouterProvider router={appRouter} />
+      <NotificationProvider>
+        <RouterProvider router={appRouter} />
+        <Toaster position="top-right" />
+      </NotificationProvider>
     </main>
   );
 }

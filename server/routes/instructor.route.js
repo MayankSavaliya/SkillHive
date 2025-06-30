@@ -4,7 +4,13 @@ import {
   getInstructorAnalytics, 
   getInstructorRevenue, 
   getInstructorStudents, 
-  getCoursePerformance 
+  getCoursePerformance,
+  sendMessageToStudent,
+  getInstructorMessages,
+  sendAnnouncement,
+  getInstructorDashboard,
+  updateInstructorProfile,
+  getInstructorProfile
 } from "../controllers/instructor.controller.js";
 
 const router = express.Router();
@@ -12,16 +18,22 @@ const router = express.Router();
 // All instructor routes require authentication
 router.use(verifyFirebaseToken);
 
-// Get instructor analytics overview
+// Dashboard and analytics routes
+router.get("/dashboard", getInstructorDashboard);
 router.get("/analytics", getInstructorAnalytics);
-
-// Get instructor revenue data
 router.get("/revenue", getInstructorRevenue);
+router.get("/course-performance", getCoursePerformance);
 
-// Get instructor students data
+// Student management routes
 router.get("/students", getInstructorStudents);
 
-// Get course performance metrics
-router.get("/course-performance", getCoursePerformance);
+// Message and communication routes
+router.get("/messages", getInstructorMessages);
+router.post("/send-message", sendMessageToStudent);
+router.post("/send-announcement", sendAnnouncement);
+
+// Profile management routes
+router.get("/profile", getInstructorProfile);
+router.put("/profile", updateInstructorProfile);
 
 export default router;

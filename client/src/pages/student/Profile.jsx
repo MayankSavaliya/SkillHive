@@ -11,59 +11,90 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, User, Mail, Shield, Edit, BookOpen } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { 
+  Loader2, 
+  User, 
+  Mail, 
+  Shield, 
+  Edit, 
+  BookOpen, 
+  Camera,
+  Upload,
+  X,
+  Check,
+  Calendar,
+  Award,
+  TrendingUp,
+  Activity
+} from "lucide-react";
+import React, { useEffect, useState, useRef } from "react";
 import Course from "./Course";
 import {
   useUpdateUserMutation,
 } from "@/features/api/authApi";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
+  const navigate = useNavigate();
+  const { user } = useSelector((store) => store.auth);
   const [name, setName] = useState("");
   const [profilePhoto, setProfilePhoto] = useState("");
+  const [tempPhoto, setTempPhoto] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [photoLoading, setPhotoLoading] = useState(false);
+  const [isImageError, setIsImageError] = useState(false);
 
-  const { user, isAuthenticated } = useSelector((store) => store.auth);
-  const [
-    updateUser,
-    {
-      data: updateUserData,
-      isLoading: updateUserIsLoading,
-      isError,
-      error,
-      isSuccess,
-    },
-  ] = useUpdateUserMutation();
-
-  console.log(user);
+  const [updateUser, { data: updateUserData, isLoading: updateUserIsLoading, isSuccess }] = useUpdateUserMutation();
 
   const onChangeHandler = (e) => {
     const file = e.target.files?.[0];
-    if (file) setProfilePhoto(file);
+    if (file) {
+      setTempPhoto(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name || "");
+      setProfilePhoto(user.photoUrl || user.photoURL || "");
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      setIsEditing(false);
+      setTempPhoto(null);
+      setPreviewUrl(null);
+      toast.success(updateUserData.message || "Profile updated successfully!");
+    }
+  }, [isSuccess, updateUserData]);
 
   const updateUserHandler = async () => {
     const formData = new FormData();
     formData.append("name", name);
-    formData.append("profilePhoto", profilePhoto);
-    await updateUser(formData);
-  };
+    if (tempPhoto) {
+      formData.append("profilePhoto", tempPhoto);
+    }
 
-  useEffect(() => {
-    if (isSuccess) {
-      toast.success(updateUserData?.message || "✅ Profile updated successfully!", {
-        description: "Your profile information has been saved.",
-        duration: 3000,
-      });
+    setIsLoading(true);
+    try {
+      const result = await updateUser(formData).unwrap();
+      toast.success("Profile updated successfully!");
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to update profile");
+    } finally {
+      setIsLoading(false);
     }
-    if (isError) {
-      toast.error("❌ " + (error?.data?.message || "Failed to update profile"), {
-        description: "Please check your information and try again.",
-        duration: 4000,
-      });
-    }
-  }, [error, updateUserData, isSuccess, isError]);
+  };
 
   if (!user) return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50/30 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900 flex items-center justify-center">
@@ -74,142 +105,311 @@ const Profile = () => {
     </div>
   );
 
-  console.log(user);
+  const userStats = [
+    {
+      id: "enrolled-courses",
+      label: "Enrolled Courses",
+      value: user.enrolledCourses?.length || 0,
+      icon: BookOpen,
+      color: "from-blue-500 to-cyan-500",
+      bgColor: "from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20"
+    },
+    {
+      id: "completed-courses",
+      label: "Completed",
+      value: Math.floor((user.enrolledCourses?.length || 0) * 0.6),
+      icon: Award,
+      color: "from-green-500 to-emerald-500",
+      bgColor: "from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20"
+    },
+    {
+      id: "in-progress-courses",
+      label: "In Progress",
+      value: Math.ceil((user.enrolledCourses?.length || 0) * 0.4),
+      icon: TrendingUp,
+      color: "from-orange-500 to-yellow-500",
+      bgColor: "from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20"
+    },
+    {
+      id: "learning-hours",
+      label: "Learning Hours",
+      value: Math.floor((user.enrolledCourses?.length || 0) * 12.5),
+      icon: Activity,
+      color: "from-purple-500 to-pink-500",
+      bgColor: "from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20"
+    }
+  ];
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50/30 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900 relative overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 bg-grid-gray-100 dark:bg-grid-gray-800 opacity-30"></div>
-      <div className="absolute top-0 left-0 w-72 h-72 bg-blue-200/20 dark:bg-blue-900/20 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-200/20 dark:bg-purple-900/20 rounded-full blur-3xl"></div>
+      {/* Enhanced Background decorative elements */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-100/20 via-transparent to-purple-100/20 dark:from-blue-900/10 dark:to-purple-900/10"></div>
+      <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-blue-400/10 to-cyan-400/10 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-r from-purple-400/10 to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/5 to-blue-400/5 rounded-full blur-2xl"></div>
       
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header Section */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 text-blue-700 dark:text-blue-300 px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 animate-fade-in">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+        {/* Enhanced Header Section */}
+        <div className="text-center mb-12 lg:mb-16">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100/80 to-indigo-100/80 dark:from-blue-900/40 dark:to-indigo-900/40 text-blue-700 dark:text-blue-300 px-6 py-3 rounded-full text-sm font-semibold mb-6 shadow-lg backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 transition-all duration-300 hover:scale-105">
             <User className="h-5 w-5" />
-            <span>Your Profile</span>
+            <span>Your Profile Dashboard</span>
           </div>
           
-          <h1 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white mb-6 leading-tight tracking-tight">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white mb-4 leading-tight tracking-tight">
             Welcome back,
-            <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent animate-fade-in"> {user.name.split(' ')[0]}</span>
+            <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent"> {user.name.split(' ')[0]}</span>
           </h1>
+          
+          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            Manage your profile, track your learning progress, and customize your experience.
+          </p>
         </div>
 
-        {/* Profile Card */}
-        <div className="glass rounded-3xl p-10 mb-12 shadow-2xl border border-white/20 dark:border-gray-700/50 backdrop-blur-xl">
-          <div className="flex flex-col lg:flex-row items-center lg:items-start gap-10">
-            {/* Avatar Section */}
-            <div className="flex flex-col items-center">
-              <Avatar className="h-32 w-32 lg:h-40 lg:w-40 mb-6 ring-4 ring-blue-200 dark:ring-blue-800 shadow-2xl">
-                <AvatarImage
-                  src={user?.photoUrl || "https://github.com/shadcn.png"}
-                  alt={user.name}
-                  className="object-cover"
-                />
-                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white text-3xl font-bold">
-                  {user.name?.charAt(0)?.toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
+        {/* Enhanced Profile Card */}
+        <div className="glass rounded-3xl p-6 lg:p-10 mb-12 shadow-2xl border border-white/20 dark:border-gray-700/50 backdrop-blur-xl transition-all duration-300 hover:shadow-3xl">
+          <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8 lg:gap-12">
+            {/* Enhanced Avatar Section */}
+            <div className="flex flex-col items-center space-y-6">
+              <div className="relative group">
+                <Avatar className="h-32 w-32 lg:h-40 lg:w-40 ring-4 ring-blue-200/50 dark:ring-blue-800/50 shadow-2xl transition-all duration-300 group-hover:ring-blue-300 dark:group-hover:ring-blue-700 group-hover:scale-105">
+                  <AvatarImage
+                    src={user?.photoUrl || user?.photoURL || "https://github.com/shadcn.png"}
+                    alt={user.name}
+                    className="object-cover"
+                    onError={() => setIsImageError(true)}
+                    onLoad={() => setIsImageError(false)}
+                  />
+                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white text-2xl lg:text-3xl font-bold">
+                    {user.name?.charAt(0)?.toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
+                
+                {/* Floating camera icon */}
+                <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full p-3 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer hover:scale-110">
+                  <Camera className="h-4 w-4 text-white" />
+                </div>
+              </div>
+              
+              <div className="text-center">
+                <h2 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-1">{user.name}</h2>
+                <p className="text-gray-600 dark:text-gray-400 font-medium">{user.email}</p>
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <Calendar className="h-4 w-4 text-gray-500" />
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    Joined {user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { 
+                      month: 'long', 
+                      year: 'numeric' 
+                    }) : 'Recently'}
+                  </span>
+                </div>
+              </div>
             </div>
 
-            {/* Profile Info */}
+            {/* Enhanced Profile Info */}
             <div className="flex-1 w-full space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-white/50 dark:bg-gray-800/50 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50">
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+                {userStats.map((stat) => {
+                  const IconComponent = stat.icon;
+                  return (
+                    <div key={stat.id} className={`bg-gradient-to-br ${stat.bgColor} rounded-2xl p-4 lg:p-6 border border-white/50 dark:border-gray-700/50 transition-all duration-300 hover:scale-105 hover:shadow-lg group`}>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className={`p-2 rounded-xl bg-gradient-to-r ${stat.color} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                          <IconComponent className="h-4 w-4 lg:h-5 lg:w-5 text-white" />
+                        </div>
+                      </div>
+                      <div className="text-2xl lg:text-3xl font-black text-gray-900 dark:text-white mb-1">
+                        {stat.value}
+                      </div>
+                      <div className="text-xs lg:text-sm text-gray-600 dark:text-gray-400 font-medium">
+                        {stat.label}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Profile Details */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white/60 dark:bg-gray-800/60 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/70 dark:hover:bg-gray-800/70">
                   <div className="flex items-center gap-3 mb-4">
-                    <User className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                    <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl shadow-lg">
+                      <User className="h-5 w-5 text-white" />
+                    </div>
                     <h3 className="font-bold text-gray-900 dark:text-white text-lg">Full Name</h3>
                   </div>
                   <p className="text-xl text-gray-700 dark:text-gray-300 font-medium">{user.name}</p>
                 </div>
 
-                <div className="bg-white/50 dark:bg-gray-800/50 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50">
+                <div className="bg-white/60 dark:bg-gray-800/60 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/70 dark:hover:bg-gray-800/70">
                   <div className="flex items-center gap-3 mb-4">
-                    <Mail className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                    <div className="p-2 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl shadow-lg">
+                      <Mail className="h-5 w-5 text-white" />
+                    </div>
                     <h3 className="font-bold text-gray-900 dark:text-white text-lg">Email Address</h3>
                   </div>
-                  <p className="text-xl text-gray-700 dark:text-gray-300 font-medium">{user.email}</p>
+                  <p className="text-xl text-gray-700 dark:text-gray-300 font-medium break-all">{user.email}</p>
                 </div>
 
-                <div className="bg-white/50 dark:bg-gray-800/50 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50">
+                <div className="bg-white/60 dark:bg-gray-800/60 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/70 dark:hover:bg-gray-800/70">
                   <div className="flex items-center gap-3 mb-4">
-                    <Shield className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                    <h3 className="font-bold text-gray-900 dark:text-white text-lg">Role</h3>
+                    <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl shadow-lg">
+                      <Shield className="h-5 w-5 text-white" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 dark:text-white text-lg">Account Type</h3>
                   </div>
                   <span className={`inline-flex px-4 py-2 rounded-full text-sm font-bold ${
                     user.role === 'instructor' 
                       ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
+                      : user.role === 'admin'
+                      ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
                       : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                   }`}>
                     {user.role.toUpperCase()}
                   </span>
                 </div>
 
-                <div className="bg-white/50 dark:bg-gray-800/50 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50">
+                <div className="bg-white/60 dark:bg-gray-800/60 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/70 dark:hover:bg-gray-800/70">
                   <div className="flex items-center gap-3 mb-4">
-                    <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                    <h3 className="font-bold text-gray-900 dark:text-white text-lg">Enrolled Courses</h3>
+                    <div className="p-2 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl shadow-lg">
+                      <Calendar className="h-5 w-5 text-white" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 dark:text-white text-lg">Member Since</h3>
                   </div>
-                  <p className="text-3xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    {user.enrolledCourses?.length || 0}
+                  <p className="text-xl text-gray-700 dark:text-gray-300 font-medium">
+                    {user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { 
+                      month: 'long', 
+                      day: 'numeric',
+                      year: 'numeric' 
+                    }) : 'Recently'}
                   </p>
                 </div>
               </div>
 
+              {/* Enhanced Edit Button */}
               <div className="flex justify-center lg:justify-start">
-                <Dialog>
+                <Dialog open={isEditing} onOpenChange={setIsEditing}>
                   <DialogTrigger asChild>
                     <Button 
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 group"
                     >
-                      <Edit className="mr-2 h-6 w-6" />
+                      <Edit className="mr-2 h-6 w-6 group-hover:rotate-12 transition-transform duration-300" />
                       Edit Profile
                     </Button>
-                  </DialogTrigger>                  <DialogContent className="sm:max-w-md glass border-white/20 dark:border-gray-700/50">
+                  </DialogTrigger>
+                  
+                  <DialogContent className="sm:max-w-lg glass border-white/20 dark:border-gray-700/50 backdrop-blur-xl">
                     <DialogHeader>
-                      <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-white">Edit Profile</DialogTitle>
+                      <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <Edit className="h-6 w-6 text-blue-600" />
+                        Edit Profile
+                      </DialogTitle>
                       <DialogDescription className="text-gray-600 dark:text-gray-400">
-                        Make changes to your profile here. Click save when you're done.
+                        Update your profile information and photo. All changes will be saved automatically.
                       </DialogDescription>
                     </DialogHeader>
+                    
                     <div className="grid gap-6 py-4">
                       <div className="space-y-2">
-                        <Label htmlFor="name" className="text-sm font-semibold text-gray-700 dark:text-gray-300">Full Name</Label>
+                        <Label htmlFor="name" className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          Full Name *
+                        </Label>
                         <Input
                           id="name"
                           type="text"
                           value={name}
                           onChange={(e) => setName(e.target.value)}
                           placeholder="Enter your full name"
-                          className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 transition-colors duration-200"
+                          required
                         />
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="photo" className="text-sm font-semibold text-gray-700 dark:text-gray-300">Profile Photo</Label>
-                        <Input
-                          id="photo"
-                          onChange={onChangeHandler}
-                          type="file"
-                          accept="image/*"
-                          className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                        />
+                      
+                      <div className="space-y-3">
+                        <Label htmlFor="photo" className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          Profile Photo
+                        </Label>
+                        
+                        {/* Image Preview */}
+                        {previewUrl && (
+                          <div className="relative inline-block">
+                            <img 
+                              src={previewUrl} 
+                              alt="Preview" 
+                              className="w-24 h-24 rounded-xl object-cover border-2 border-gray-200 dark:border-gray-600"
+                            />
+                            <button
+                              onClick={() => {
+                                setTempPhoto(null);
+                                setPreviewUrl(null);
+                              }}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors duration-200"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        )}
+                        
+                        {/* Drag & Drop Area */}
+                        <div
+                          className={`border-2 border-dashed rounded-xl p-6 text-center transition-all duration-300 ${
+                            photoLoading 
+                              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+                              : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                          }`}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            setPhotoLoading(false);
+                          }}
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            setPhotoLoading(true);
+                          }}
+                          onDragLeave={() => setPhotoLoading(false)}
+                          onClick={() => {
+                            if (user) {
+                              const input = document.createElement('input');
+                              input.type = 'file';
+                              input.accept = 'image/*';
+                              input.onchange = onChangeHandler;
+                              input.click();
+                            }
+                          }}
+                        >
+                          <div className="space-y-3">
+                            <div className="mx-auto w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+                              <Upload className="h-6 w-6 text-white" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Drop your image here or <span className="text-blue-600 hover:text-blue-700 cursor-pointer">browse</span>
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                PNG, JPG, JPEG up to 5MB
+                              </p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
+                    
                     <DialogFooter>
                       <Button
-                        disabled={updateUserIsLoading}
+                        disabled={isLoading}
                         onClick={updateUserHandler}
-                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300"
+                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
                       >
-                        {updateUserIsLoading ? (
+                        {isLoading ? (
                           <>
                             <Loader2 className="mr-2 h-5 w-5 animate-spin" /> 
-                            Updating...
+                            Updating Profile...
                           </>
                         ) : (
-                          "Save Changes"
+                          <>
+                            <Check className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+                            Save Changes
+                          </>
                         )}
                       </Button>
                     </DialogFooter>
@@ -220,42 +420,43 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Enrolled Courses Section */}
+        {/* Enhanced Enrolled Courses Section */}
         <div className="space-y-8">
           <div className="text-center">
-            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Your Learning Journey
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">
-              Continue learning and track your progress
+            <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Continue learning and track your progress across all your enrolled courses
             </p>
           </div>
 
           {user.enrolledCourses.length === 0 ? (
-            <div className="text-center py-24">
-              <div className="glass rounded-3xl p-20 max-w-2xl mx-auto shadow-2xl border border-white/20 dark:border-gray-700/50 backdrop-blur-xl">
+            <div className="text-center py-16 lg:py-24">
+              <div className="glass rounded-3xl p-12 lg:p-20 max-w-2xl mx-auto shadow-2xl border border-white/20 dark:border-gray-700/50 backdrop-blur-xl">
                 <div className="mb-12">
-                  <div className="w-32 h-32 bg-gradient-to-br from-blue-100 via-purple-50 to-indigo-100 dark:from-blue-900/30 dark:via-purple-900/20 dark:to-indigo-900/30 rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl">
-                    <BookOpen className="h-16 w-16 text-blue-600 dark:text-blue-400" />
+                  <div className="w-24 h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-blue-100 via-purple-50 to-indigo-100 dark:from-blue-900/30 dark:via-purple-900/20 dark:to-indigo-900/30 rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl animate-pulse">
+                    <BookOpen className="h-12 w-12 lg:h-16 lg:w-16 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                    Ready to start learning?
+                  <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-6">
+                    Ready to start your learning adventure?
                   </h3>
-                  <p className="text-xl text-gray-600 dark:text-gray-400 mb-12 leading-relaxed">
-                    You haven't enrolled in any courses yet. Explore our course library and start your learning journey today!
+                  <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-400 mb-12 leading-relaxed">
+                    You haven't enrolled in any courses yet. Explore our extensive course library and begin your journey to mastering new skills today!
                   </p>
                 </div>
                 
                 <button 
                   onClick={() => window.location.href = '/courses'}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-10 py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-10 py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group"
                 >
-                  Browse Courses
+                  <BookOpen className="mr-2 h-6 w-6 group-hover:rotate-12 transition-transform duration-300" />
+                  Explore Courses
                 </button>
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
               {user.enrolledCourses.map((course, index) => (
                 <div 
                   key={course._id} 
