@@ -52,6 +52,23 @@ const AdminCourseDetails = () => {
     return `${hours}h ${minutes}m`;
   };
 
+  // Calculate total duration from lectures
+  const getTotalDuration = () => {
+    if (!course.lectures || course.lectures.length === 0) return "0h 0m";
+    
+    let totalMinutes = 0;
+    course.lectures.forEach(lecture => {
+      if (lecture.duration && lecture.duration !== "0:00") {
+        const [minutes, seconds] = lecture.duration.split(':').map(Number);
+        totalMinutes += minutes + (seconds > 30 ? 1 : 0); // Round up if seconds > 30
+      }
+    });
+    
+    const hours = Math.floor(totalMinutes / 60);
+    const mins = totalMinutes % 60;
+    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -165,11 +182,11 @@ const AdminCourseDetails = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl md:text-3xl font-bold">
-              {course.averageRating ? course.averageRating.toFixed(1) : 'N/A'}
+              {course.rating?.average ? course.rating.average.toFixed(1) : 'N/A'}
             </div>
             <div className="flex items-center mt-2 text-sm opacity-90">
               <Eye className="h-4 w-4 mr-1" />
-              <span>{course.reviews?.length || 0} reviews</span>
+              <span>{course.rating?.count || 0} reviews</span>
             </div>
           </CardContent>
         </Card>
@@ -209,8 +226,16 @@ const AdminCourseDetails = () => {
                     <p className="text-sm font-semibold">{course.courseLevel}</p>
                   </div>
                   <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Language</p>
+                    <p className="text-sm font-semibold">{course.language || 'English'}</p>
+                  </div>
+                  <div>
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Price</p>
                     <p className="text-sm font-semibold text-green-600">{formatCurrency(course.coursePrice)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Duration</p>
+                    <p className="text-sm font-semibold">{getTotalDuration()}</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Created</p>
@@ -228,6 +253,36 @@ const AdminCourseDetails = () => {
                     {course.description || "No description available"}
                   </p>
                 </div>
+
+                {/* What You'll Learn */}
+                {course.whatYouWillLearn && course.whatYouWillLearn.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">What Students Will Learn</p>
+                    <div className="space-y-1">
+                      {course.whatYouWillLearn.map((item, index) => (
+                        <div key={index} className="flex items-start gap-2">
+                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Requirements */}
+                {course.requirements && course.requirements.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Course Requirements</p>
+                    <div className="space-y-1">
+                      {course.requirements.map((item, index) => (
+                        <div key={index} className="flex items-start gap-2">
+                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -270,14 +325,28 @@ const AdminCourseDetails = () => {
                       <div className="flex items-center space-x-4">
                         <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
                           <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                            {index + 1}
+                            {lecture.lectureIndex || index + 1}
                           </span>
                         </div>
-                        <div>
+                        <div className="flex-1">
                           <p className="font-medium">{lecture.lectureTitle}</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {lecture.isPreviewFree ? "Free Preview" : "Premium Content"}
-                          </p>
+                          {lecture.description && (
+                            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1">
+                              {lecture.description}
+                            </p>
+                          )}
+                          <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <span>{lecture.isPreviewFree ? "Free Preview" : "Premium Content"}</span>
+                            {lecture.duration && lecture.duration !== "0:00" && (
+                              <>
+                                <span>•</span>
+                                <div className="flex items-center gap-1">
+                                  <Clock className="w-3 h-3" />
+                                  <span>{lecture.duration}</span>
+                                </div>
+                              </>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">

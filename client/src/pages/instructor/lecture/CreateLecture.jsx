@@ -13,6 +13,8 @@ import Lecture from "./Lecture";
 
 const CreateLecture = () => {
   const [lectureTitle, setLectureTitle] = useState("");
+  const [uploadVideInfo, setUploadVideInfo] = useState(null);
+  const [isFree, setIsFree] = useState(false);
   const params = useParams();
   const courseId = params.courseId;
   const navigate = useNavigate();

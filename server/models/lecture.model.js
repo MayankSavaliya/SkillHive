@@ -7,7 +7,21 @@ const lectureSchema = new mongoose.Schema({
   },
   videoUrl: { type: String },
   publicId: { type: String },
-  isPreviewFree: { type: Boolean },
+  isPreviewFree: { type: Boolean, default: false },
+  // Essential fields only
+  description: {
+    type: String,
+    default: ""
+  },
+  duration: {
+    type: String, // Store as "5:30" format (minutes:seconds)
+    default: "0:00"
+  },
+  lectureIndex: {
+    type: Number,
+    required: true,
+    default: 1
+  }
 },{timestamps:true});
 
 export const Lecture = mongoose.model("Lecture", lectureSchema);

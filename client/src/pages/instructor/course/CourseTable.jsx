@@ -11,13 +11,30 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useGetCreatorCourseQuery } from "@/features/api/courseApi";
-import { Edit, BookOpen, Plus, TrendingUp, Users, Eye } from "lucide-react";
+import { Edit, BookOpen, Plus, TrendingUp, Users, Eye, Clock, Globe } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
 const CourseTable = () => {
   const {data, isLoading, error} = useGetCreatorCourseQuery();
   const navigate = useNavigate();
+
+  // Calculate total duration from lectures
+  const getTotalDuration = (course) => {
+    if (!course.lectures || course.lectures.length === 0) return "0m";
+    
+    let totalMinutes = 0;
+    course.lectures.forEach(lecture => {
+      if (lecture.duration && lecture.duration !== "0:00") {
+        const [minutes, seconds] = lecture.duration.split(':').map(Number);
+        totalMinutes += minutes + (seconds > 30 ? 1 : 0); // Round up if seconds > 30
+      }
+    });
+    
+    const hours = Math.floor(totalMinutes / 60);
+    const mins = totalMinutes % 60;
+    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+  };
 
   if(isLoading) return (
     <div className="p-6 flex items-center justify-center h-96">
@@ -155,7 +172,8 @@ const CourseTable = () => {
                   <TableHead className="font-semibold text-gray-900 dark:text-gray-100 pl-6">Course</TableHead>
                   <TableHead className="font-semibold text-gray-900 dark:text-gray-100">Status</TableHead>
                   <TableHead className="font-semibold text-gray-900 dark:text-gray-100">Price</TableHead>
-                  <TableHead className="font-semibold text-gray-900 dark:text-gray-100">Lectures</TableHead>
+                  <TableHead className="font-semibold text-gray-900 dark:text-gray-100">Duration</TableHead>
+                  <TableHead className="font-semibold text-gray-900 dark:text-gray-100">Language</TableHead>
                   <TableHead className="text-right font-semibold text-gray-900 dark:text-gray-100 pr-6">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -175,7 +193,7 @@ const CourseTable = () => {
                             {course.courseTitle}
                           </h3>
                           <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {course.category || 'No category'}
+                            {course.category || 'No category'} • {course.lectures?.length || 0} lectures
                           </p>
                         </div>
                       </div>
@@ -195,7 +213,16 @@ const CourseTable = () => {
                       {course?.coursePrice ? `₹${course.coursePrice.toLocaleString()}` : "Free"}
                     </TableCell>
                     <TableCell className="text-gray-600 dark:text-gray-400">
-                      {course.lectures?.length || 0} lectures
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        {getTotalDuration(course)}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center gap-1">
+                        <Globe className="h-4 w-4" />
+                        {course.language || 'English'}
+                      </div>
                     </TableCell>
                     <TableCell className="text-right pr-6">
                       <div className="flex items-center justify-end gap-2">

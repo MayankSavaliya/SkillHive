@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -38,6 +39,9 @@ const CourseTab = () => {
     courseLevel: "",
     coursePrice: "",
     courseThumbnail: "",
+    whatYouWillLearn: "",
+    requirements: "",
+    language: "English",
   });
 
   const params = useParams();
@@ -58,6 +62,9 @@ const CourseTab = () => {
         courseLevel: course.courseLevel,
         coursePrice: course.coursePrice,
         courseThumbnail: "",
+        whatYouWillLearn: course.whatYouWillLearn?.join('\n') || "",
+        requirements: course.requirements?.join('\n') || "",
+        language: course.language || "English",
       });
     }
   }, [courseByIdData]);
@@ -79,6 +86,9 @@ const CourseTab = () => {
   const selectCourseLevel = (value) => {
     setInput({ ...input, courseLevel: value });
   };
+  const selectLanguage = (value) => {
+    setInput({ ...input, language: value });
+  };
   // get file
   const selectThumbnail = (e) => {
     const file = e.target.files?.[0];
@@ -99,6 +109,9 @@ const CourseTab = () => {
     formData.append("courseLevel", input.courseLevel);
     formData.append("coursePrice", input.coursePrice);
     formData.append("courseThumbnail", input.courseThumbnail);
+    formData.append("whatYouWillLearn", JSON.stringify(input.whatYouWillLearn.split('\n').filter(item => item.trim())));
+    formData.append("requirements", JSON.stringify(input.requirements.split('\n').filter(item => item.trim())));
+    formData.append("language", input.language);
 
     await editCourse({ formData, courseId });
   };
@@ -231,7 +244,7 @@ const CourseTab = () => {
               Course Settings
             </h3>
             
-            <div className="grid gap-4 lg:grid-cols-3 lg:gap-6">
+            <div className="grid gap-4 lg:grid-cols-4 lg:gap-6">
               <div>
                 <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   Category *
@@ -288,6 +301,37 @@ const CourseTab = () => {
               
               <div>
                 <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  Language
+                </Label>
+                <Select
+                  defaultValue={input.language}
+                  onValueChange={selectLanguage}
+                >
+                  <SelectTrigger className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary">
+                    <SelectValue placeholder="Select language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Course Language</SelectLabel>
+                      <SelectItem value="English">🇺🇸 English</SelectItem>
+                      <SelectItem value="Spanish">🇪🇸 Spanish</SelectItem>
+                      <SelectItem value="French">🇫🇷 French</SelectItem>
+                      <SelectItem value="German">🇩🇪 German</SelectItem>
+                      <SelectItem value="Portuguese">🇵🇹 Portuguese</SelectItem>
+                      <SelectItem value="Italian">🇮🇹 Italian</SelectItem>
+                      <SelectItem value="Russian">🇷🇺 Russian</SelectItem>
+                      <SelectItem value="Chinese">🇨🇳 Chinese</SelectItem>
+                      <SelectItem value="Japanese">🇯🇵 Japanese</SelectItem>
+                      <SelectItem value="Korean">🇰🇷 Korean</SelectItem>
+                      <SelectItem value="Hindi">🇮🇳 Hindi</SelectItem>
+                      <SelectItem value="Arabic">🇸🇦 Arabic</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   Price (₹) *
                 </Label>
                 <Input
@@ -300,6 +344,47 @@ const CourseTab = () => {
                   className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Set to 0 for free course</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Course Content Section */}
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
+              Course Content Details
+            </h3>
+            
+            <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
+              <div>
+                <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  What You'll Learn
+                </Label>
+                <Textarea
+                  name="whatYouWillLearn"
+                  value={input.whatYouWillLearn}
+                  onChange={changeEventHandler}
+                  placeholder="Enter learning outcomes (one per line)&#10;• Master React fundamentals&#10;• Build full-stack applications&#10;• Deploy to production"
+                  className="mt-1.5 min-h-[120px] focus:ring-2 focus:ring-primary focus:border-primary"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Enter each learning outcome on a new line
+                </p>
+              </div>
+              
+              <div>
+                <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  Requirements
+                </Label>
+                <Textarea
+                  name="requirements"
+                  value={input.requirements}
+                  onChange={changeEventHandler}
+                  placeholder="Enter course requirements (one per line)&#10;• Basic JavaScript knowledge&#10;• Computer with internet access&#10;• Willingness to learn"
+                  className="mt-1.5 min-h-[120px] focus:ring-2 focus:ring-primary focus:border-primary"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Enter each requirement on a new line
+                </p>
               </div>
             </div>
           </div>

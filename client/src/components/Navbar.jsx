@@ -1,4 +1,4 @@
-import { Menu, BookOpen, Search, Bell, User, GraduationCap, Settings, LogOut, BarChart3 } from "lucide-react";
+import { Menu, BookOpen, Bell, User, GraduationCap, Settings, LogOut, BarChart3 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import {
   DropdownMenu,
@@ -11,7 +11,7 @@ import {
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Input } from "./ui/input";
+
 import DarkMode from "@/DarkMode";
 import {
   Sheet,
@@ -37,7 +37,7 @@ import { auth } from "@/config/firebase";
 const Navbar = () => {
   const { user } = useSelector((store) => store.auth);
   const [firebaseLogout] = useFirebaseLogoutMutation();
-  const [searchQuery, setSearchQuery] = useState("");
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   
@@ -53,17 +53,12 @@ const Navbar = () => {
     }
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/course/search?query=${encodeURIComponent(searchQuery)}`);
-    }
-  };
+
 
   return (
     <div className="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 fixed top-0 left-0 right-0 z-50 shadow-sm backdrop-blur-lg bg-white/95 dark:bg-gray-900/95">
       {/* Desktop */}
-      <div className="max-w-7xl mx-auto hidden md:flex justify-between items-center gap-8 h-full px-6">
+      <div className="max-w-7xl mx-auto hidden md:flex items-center h-full px-6">
         {/* Logo */}
         <div className="flex items-center gap-3">
           <div className="bg-blue-600 p-2 rounded-lg">
@@ -77,7 +72,7 @@ const Navbar = () => {
         </div>
 
         {/* Navigation Links */}
-        <div className="hidden lg:flex items-center gap-8">
+        <div className="flex items-center gap-8 ml-12">
           <Link 
             to="/courses" 
             className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
@@ -92,22 +87,8 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* Search Bar - Larger Size */}
-        <div className="flex-1 max-w-xl mx-8">
-          <form onSubmit={handleSearch} className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <Input
-              type="text"
-              placeholder="Search for courses, topics, or instructors..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-4 py-3 w-full text-base border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm"
-            />
-          </form>
-        </div>
-
         {/* User Actions */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 ml-auto">
           {user ? (
             <>
               {/* Notifications */}

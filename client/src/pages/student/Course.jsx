@@ -38,6 +38,28 @@ const Course = ({ course, viewMode = "grid", showProgress = false }) => {
     }
   };
 
+  // Calculate total duration from lectures
+  const getTotalDuration = () => {
+    if (!course.lectures || course.lectures.length === 0) return "0h 0m";
+    
+    let totalMinutes = 0;
+    course.lectures.forEach(lecture => {
+      if (lecture.duration && lecture.duration !== "0:00") {
+        const [minutes, seconds] = lecture.duration.split(':').map(Number);
+        totalMinutes += minutes + (seconds > 30 ? 1 : 0); // Round up if seconds > 30
+      }
+    });
+    
+    const hours = Math.floor(totalMinutes / 60);
+    const mins = totalMinutes % 60;
+    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+  };
+
+  // Get course rating
+  const getCourseRating = () => {
+    return course.rating?.average || 4.5;
+  };
+
   // Simulate progress for demo (you can replace this with real progress data)
   const getProgress = () => {
     const seed = course._id?.charCodeAt(0) || 0;
@@ -157,7 +179,7 @@ const Course = ({ course, viewMode = "grid", showProgress = false }) => {
                       <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
                         <div className="flex items-center gap-1">
                           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          <span className="font-medium">4.8</span>
+                          <span className="font-medium">{getCourseRating()}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Users className="h-4 w-4" />
@@ -165,7 +187,11 @@ const Course = ({ course, viewMode = "grid", showProgress = false }) => {
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
-                          <span>12h</span>
+                          <span>{getTotalDuration()}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <BookOpen className="h-4 w-4" />
+                          <span>{course.lectures?.length || 0} lectures</span>
                         </div>
                       </div>
                       
@@ -298,7 +324,7 @@ const Course = ({ course, viewMode = "grid", showProgress = false }) => {
               {/* Rating */}
               <div className="flex items-center gap-1">
                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span className="font-medium">4.8</span>
+                <span className="font-medium">{getCourseRating()}</span>
               </div>
               
               {/* Students count */}
@@ -310,7 +336,7 @@ const Course = ({ course, viewMode = "grid", showProgress = false }) => {
               {/* Duration */}
               <div className="flex items-center gap-1">
                 <Clock className="h-4 w-4" />
-                <span>12h</span>
+                <span>{getTotalDuration()}</span>
               </div>
             </div>
 

@@ -9,9 +9,6 @@ router.route("/upload-video").post(upload.single("file"), async(req,res) => {
     try {
         const result = await uploadMedia(req.file.path);
 
-        // Delete the local file after successful upload to Cloudinary
-        await fs.promises.unlink(req.file.path);
-
         res.status(200).json({
             success:true,
             message:"File uploaded successfully.",

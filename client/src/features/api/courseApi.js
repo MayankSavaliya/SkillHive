@@ -100,12 +100,15 @@ export const courseApi = createApi({
         lectureTitle,
         videoInfo,
         isPreviewFree,
+        description,
+        duration,
+        lectureIndex,
         courseId,
         lectureId,
       }) => ({
         url: `/${courseId}/lecture/${lectureId}`,
         method: "POST",
-        body: { lectureTitle, videoInfo, isPreviewFree },
+        body: { lectureTitle, videoInfo, isPreviewFree, description, duration, lectureIndex },
       }),
     }),
     removeLecture: builder.mutation({

@@ -18,6 +18,13 @@ const courseSchema = new mongoose.Schema({
     coursePrice:{
         type:Number
     },
+    originalPrice: {
+        type: Number
+    },
+    discountPercentage: {
+        type: Number,
+        default: 0
+    },
     courseThumbnail:{
         type:String
     },
@@ -40,6 +47,22 @@ const courseSchema = new mongoose.Schema({
     isPublished:{
         type:Boolean,
         default:false
+    },
+    whatYouWillLearn: {
+        type: [String],
+        default: []
+    },
+    requirements: {
+        type: [String],
+        default: []
+    },
+    language: {
+        type: String,
+        default: 'English'
+    },
+    rating: {
+        average: { type: Number, default: 0 },
+        count: { type: Number, default: 0 }
     }
 
 }, {timestamps:true});

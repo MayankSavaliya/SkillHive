@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { useEditLectureMutation, useGetLectureByIdQuery, useRemoveLectureMutation } from "@/features/api/courseApi";
 import axios from "axios";
 import { Loader2 } from "lucide-react";
@@ -26,6 +27,9 @@ const LectureTab = () => {
   const [mediaProgress, setMediaProgress] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [btnDisable, setBtnDisable] = useState(true);
+  const [description, setDescription] = useState("");
+  const [duration, setDuration] = useState("0:00");
+  const [lectureIndex, setLectureIndex] = useState(1);
   const params = useParams();
   const { courseId, lectureId } = params;
 
@@ -36,6 +40,9 @@ const LectureTab = () => {
     if(lecture){
       setLectureTitle(lecture.lectureTitle);
       setIsFree(lecture.isPreviewFree);
+      setDescription(lecture.description || "");
+      setDuration(lecture.duration || "0:00");
+      setLectureIndex(lecture.lectureIndex || 1);
       // Check if lecture has videoUrl and publicId
       if(lecture.videoUrl && lecture.publicId){
         setUploadVideoInfo({
@@ -92,6 +99,9 @@ const LectureTab = () => {
       lectureTitle, 
       uploadVideInfo, 
       isFree, 
+      description,
+      duration,
+      lectureIndex,
       courseId, 
       lectureId 
     };
@@ -173,6 +183,56 @@ const LectureTab = () => {
               placeholder="e.g., Introduction to JavaScript Fundamentals"
               className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary"
             />
+          </div>
+
+          {/* Lecture Description */}
+          <div>
+            <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              Lecture Description
+            </Label>
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Brief description of what students will learn in this lecture..."
+              className="mt-1.5 min-h-[100px] focus:ring-2 focus:ring-primary focus:border-primary"
+            />
+          </div>
+
+          {/* Duration and Lecture Index */}
+          <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
+            <div>
+              <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                Duration (mm:ss)
+              </Label>
+              <Input
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+                type="text"
+                placeholder="10:30"
+                pattern="[0-9]+:[0-9]{2}"
+                className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Format: minutes:seconds (e.g., 10:30 for 10 minutes 30 seconds)
+              </p>
+            </div>
+            
+            <div>
+              <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                Lecture Order
+              </Label>
+              <Input
+                value={lectureIndex}
+                onChange={(e) => setLectureIndex(Number(e.target.value))}
+                type="number"
+                min="1"
+                placeholder="1"
+                className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Order in which this lecture appears in the course
+              </p>
+            </div>
           </div>
 
           {/* Video Upload */}

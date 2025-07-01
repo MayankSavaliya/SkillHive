@@ -113,7 +113,7 @@ export const getCreatorCourses = async (req,res) => {
 export const editCourse = async (req,res) => {
     try {
         const courseId = req.params.courseId;
-        const {courseTitle, subTitle, description, category, courseLevel, coursePrice} = req.body;
+        const {courseTitle, subTitle, description, category, courseLevel, coursePrice, whatYouWillLearn, requirements, language} = req.body;
         const thumbnail = req.file;
 
         let course = await Course.findById(courseId);
@@ -132,8 +132,47 @@ export const editCourse = async (req,res) => {
             courseThumbnail = await uploadMedia(thumbnail.path);
         }
 
+        // Parse JSON strings for arrays
+        let parsedWhatYouWillLearn = [];
+        let parsedRequirements = [];
+
+        if (whatYouWillLearn) {
+            try {
+                parsedWhatYouWillLearn = JSON.parse(whatYouWillLearn);
+            } catch (e) {
+                // If parsing fails, split by newlines as fallback
+                parsedWhatYouWillLearn = whatYouWillLearn.split('\n').filter(item => item.trim());
+            }
+        }
+
+        if (requirements) {
+            try {
+                parsedRequirements = JSON.parse(requirements);
+            } catch (e) {
+                // If parsing fails, split by newlines as fallback
+                parsedRequirements = requirements.split('\n').filter(item => item.trim());
+            }
+        }
  
-        const updateData = {courseTitle, subTitle, description, category, courseLevel, coursePrice, courseThumbnail:courseThumbnail?.secure_url};
+        const updateData = {
+            courseTitle, 
+            subTitle, 
+            description, 
+            category, 
+            courseLevel, 
+            coursePrice, 
+            courseThumbnail: courseThumbnail?.secure_url,
+            whatYouWillLearn: parsedWhatYouWillLearn,
+            requirements: parsedRequirements,
+            language
+        };
+
+        // Remove undefined values
+        Object.keys(updateData).forEach(key => {
+            if (updateData[key] === undefined) {
+                delete updateData[key];
+            }
+        });
 
         course = await Course.findByIdAndUpdate(courseId, updateData, {new:true});
 
@@ -145,7 +184,7 @@ export const editCourse = async (req,res) => {
     } catch (error) {
         console.log(error);
         return res.status(500).json({
-            message:"Failed to create course"
+            message:"Failed to update course"
         })
     }
 }
@@ -182,14 +221,28 @@ export const createLecture = async (req,res) => {
             })
         };
 
-        // create lecture
-        const lecture = await Lecture.create({lectureTitle});
-
-        const course = await Course.findById(courseId);
-        if(course){
-            course.lectures.push(lecture._id);
-            await course.save();
+        // Get the course to determine next lecture index
+        const course = await Course.findById(courseId).populate("lectures");
+        if(!course){
+            return res.status(404).json({
+                message:"Course not found"
+            })
         }
+
+        // Calculate next lecture index
+        const nextIndex = course.lectures.length + 1;
+
+        // create lecture with default values for new fields
+        const lecture = await Lecture.create({
+            lectureTitle,
+            description: "",
+            duration: "0:00", 
+            lectureIndex: nextIndex
+        });
+
+        // Add lecture to course
+        course.lectures.push(lecture._id);
+        await course.save();
 
         return res.status(201).json({
             lecture,
@@ -225,7 +278,7 @@ export const getCourseLecture = async (req,res) => {
 }
 export const editLecture = async (req,res) => {
     try {
-        const {lectureTitle, videoInfo, isPreviewFree} = req.body;
+        const {lectureTitle, videoInfo, isPreviewFree, description, duration, lectureIndex} = req.body;
         
         const {courseId, lectureId} = req.params;
         
@@ -233,6 +286,9 @@ export const editLecture = async (req,res) => {
             lectureTitle,
             videoInfo,
             isPreviewFree,
+            description,
+            duration,
+            lectureIndex,
             courseId,
             lectureId
         });
@@ -253,6 +309,9 @@ export const editLecture = async (req,res) => {
         if(videoInfo?.videoUrl) lecture.videoUrl = videoInfo.videoUrl;
         if(videoInfo?.publicId) lecture.publicId = videoInfo.publicId;
         if(isPreviewFree !== undefined) lecture.isPreviewFree = isPreviewFree;
+        if(description !== undefined) lecture.description = description;
+        if(duration) lecture.duration = duration;
+        if(lectureIndex !== undefined) lecture.lectureIndex = lectureIndex;
 
         await lecture.save();
         

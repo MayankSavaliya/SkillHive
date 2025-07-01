@@ -1,9 +1,34 @@
 import { Badge } from "@/components/ui/badge";
 import React from "react";
 import { Link } from "react-router-dom";
-import { User, Star, Clock } from "lucide-react";
+import { User, Star, Clock, BookOpen, Globe } from "lucide-react";
 
 const SearchResult = ({ course }) => {
+  // Calculate total duration from lectures
+  const getTotalDuration = () => {
+    if (!course.lectures || course.lectures.length === 0) return "0h 0m";
+    
+    let totalMinutes = 0;
+    course.lectures.forEach(lecture => {
+      if (lecture.duration && lecture.duration !== "0:00") {
+        const [minutes, seconds] = lecture.duration.split(':').map(Number);
+        totalMinutes += minutes + (seconds > 30 ? 1 : 0); // Round up if seconds > 30
+      }
+    });
+    
+    const hours = Math.floor(totalMinutes / 60);
+    const mins = totalMinutes % 60;
+    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+  };
+
+  // Get course rating
+  const getCourseRating = () => {
+    return course.rating?.average || 4.5;
+  };
+
+  const getRatingCount = () => {
+    return course.rating?.count || 1200;
+  };
    
   return (
     <div className="glass rounded-2xl p-6 shadow-xl border border-white/20 dark:border-gray-700/50 backdrop-blur-xl hover:shadow-2xl transition-all duration-300 group">
@@ -41,12 +66,20 @@ const SearchResult = ({ course }) => {
           <div className="flex items-center gap-4 pt-2">
             <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
               <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-              <span className="font-medium">4.5</span>
-              <span>(1.2k)</span>
+              <span className="font-medium">{getCourseRating()}</span>
+              <span>({getRatingCount().toLocaleString()})</span>
             </div>
             <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
               <Clock className="h-3 w-3" />
-              <span>12 hours</span>
+              <span>{getTotalDuration()}</span>
+            </div>
+            <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+              <BookOpen className="h-3 w-3" />
+              <span>{course.lectures?.length || 0} lectures</span>
+            </div>
+            <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+              <Globe className="h-3 w-3" />
+              <span>{course.language || 'English'}</span>
             </div>
           </div>
         </div>

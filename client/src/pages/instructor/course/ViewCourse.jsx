@@ -22,7 +22,10 @@ import {
   Eye,
   Clock,
   Award,
-  Download
+  Download,
+  Globe,
+  PlayCircle,
+  CheckCircle
 } from "lucide-react";
 import ReactPlayer from "react-player";
 
@@ -84,13 +87,31 @@ const ViewCourse = () => {
     }
   };
 
+  // Calculate total duration from lectures
+  const getTotalDuration = () => {
+    if (!course.lectures || course.lectures.length === 0) return "0h 0m";
+    
+    let totalMinutes = 0;
+    course.lectures.forEach(lecture => {
+      if (lecture.duration && lecture.duration !== "0:00") {
+        const [minutes, seconds] = lecture.duration.split(':').map(Number);
+        totalMinutes += minutes + (seconds > 30 ? 1 : 0); // Round up if seconds > 30
+      }
+    });
+    
+    const hours = Math.floor(totalMinutes / 60);
+    const mins = totalMinutes % 60;
+    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+  };
+
   // Calculate course metrics
   const totalRevenue = courseStudents.reduce((sum, student) => {
     const enrollment = student.enrolledCourses.find(c => c.courseId === courseId);
     return sum + (enrollment?.amount || 0);
   }, 0);
 
-  const averageRating = 4.7; // Mock data - can be enhanced with real ratings
+  const averageRating = course.rating?.average || 4.5;
+  const ratingCount = course.rating?.count || 0;
   const completionRate = 78; // Mock data - can be calculated from real progress
 
   return (
@@ -208,7 +229,7 @@ const ViewCourse = () => {
                   <CardHeader>
                     <CardTitle>Course Information</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-6">
                     <div>
                       <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Description</h3>
                       <div 
@@ -216,16 +237,67 @@ const ViewCourse = () => {
                         dangerouslySetInnerHTML={{ __html: course.description }}
                       />
                     </div>
+
+                    {/* What You'll Learn */}
+                    {course.whatYouWillLearn && course.whatYouWillLearn.length > 0 && (
+                      <div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                          What Students Will Learn
+                        </h3>
+                        <div className="space-y-2">
+                          {course.whatYouWillLearn.map((item, index) => (
+                            <div key={index} className="flex items-start gap-2">
+                              <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-gray-600 dark:text-gray-400 text-sm">{item}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Requirements */}
+                    {course.requirements && course.requirements.length > 0 && (
+                      <div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                          <BookOpen className="h-5 w-5 text-blue-600" />
+                          Course Requirements
+                        </h3>
+                        <div className="space-y-2">
+                          {course.requirements.map((item, index) => (
+                            <div key={index} className="flex items-start gap-2">
+                              <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                              <span className="text-gray-600 dark:text-gray-400 text-sm">{item}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
                     <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                       <div>
                         <p className="text-sm text-gray-500 dark:text-gray-400">Category</p>
                         <p className="font-medium text-gray-900 dark:text-white">{course.category}</p>
                       </div>
                       <div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Language</p>
+                        <div className="flex items-center gap-1">
+                          <Globe className="h-4 w-4 text-gray-500" />
+                          <p className="font-medium text-gray-900 dark:text-white">{course.language || 'English'}</p>
+                        </div>
+                      </div>
+                      <div>
                         <p className="text-sm text-gray-500 dark:text-gray-400">Price</p>
                         <p className="font-medium text-gray-900 dark:text-white">
                           {course.coursePrice === 0 ? 'Free' : formatPrice(course.coursePrice)}
                         </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Duration</p>
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-4 w-4 text-gray-500" />
+                          <p className="font-medium text-gray-900 dark:text-white">{getTotalDuration()}</p>
+                        </div>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500 dark:text-gray-400">Created</p>
@@ -235,7 +307,10 @@ const ViewCourse = () => {
                       </div>
                       <div>
                         <p className="text-sm text-gray-500 dark:text-gray-400">Total Lectures</p>
-                        <p className="font-medium text-gray-900 dark:text-white">{course.lectures?.length || 0}</p>
+                        <div className="flex items-center gap-1">
+                          <PlayCircle className="h-4 w-4 text-gray-500" />
+                          <p className="font-medium text-gray-900 dark:text-white">{course.lectures?.length || 0}</p>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
