@@ -193,7 +193,6 @@ class NotificationService {
         expiresAt: { $lte: new Date() }
       });
 
-      console.log(`Cleaned ${result.deletedCount} expired notifications`);
       return result;
     } catch (error) {
       console.error('Clean expired notifications error:', error);
@@ -202,4 +201,4 @@ class NotificationService {
   }
 }
 
-export default new NotificationService(); 
+export default new NotificationService();

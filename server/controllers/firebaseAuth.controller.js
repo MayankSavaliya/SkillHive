@@ -24,9 +24,6 @@ export const firebaseAuth = async (req, res) => {
     const decodedToken = await adminAuth.verifyIdToken(idToken);
     const { uid, email, name, picture } = decodedToken;
 
-    console.log("🔍 Firebase decoded token:", { uid, email, name, picture });
-    console.log("🔍 User data from request:", userData);
-
     // Check if user exists
     let user = await User.findOne({ 
       $or: [
@@ -36,12 +33,6 @@ export const firebaseAuth = async (req, res) => {
     });
 
     if (user) {
-      console.log("👤 Existing user found:", { 
-        name: user.name, 
-        photoUrl: user.photoUrl,
-        email: user.email 
-      });
-      
       // Update existing user with Firebase UID if not present
       if (!user.firebaseUid) {
         user.firebaseUid = uid;
@@ -54,11 +45,9 @@ export const firebaseAuth = async (req, res) => {
       }
       if (picture && picture !== user.photoUrl) {
         user.photoUrl = picture;
-        console.log("📸 Updated user photoUrl to:", picture);
       }
       await user.save();
     } else {
-      console.log("🆕 Creating new user with photoUrl:", picture);
       // Create new user
       user = await User.create({
         firebaseUid: uid,
@@ -80,8 +69,6 @@ export const firebaseAuth = async (req, res) => {
       enrolledCourses: user.enrolledCourses,
       requestedInstructor: user.requestedInstructor
     };
-    
-    console.log("📤 Sending user response:", responseUser);
     
     return res.status(200).json({
       success: true,

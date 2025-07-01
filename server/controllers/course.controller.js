@@ -34,7 +34,6 @@ export const createCourse = async (req,res) => {
 export const searchCourse = async (req,res) => {
     try {
         const {query = "", categories = [], sortByPrice =""} = req.query;
-        console.log(categories);
         
         // create search query
         const searchCriteria = {
@@ -282,25 +281,12 @@ export const editLecture = async (req,res) => {
         
         const {courseId, lectureId} = req.params;
         
-        console.log("Edit lecture request:", {
-            lectureTitle,
-            videoInfo,
-            isPreviewFree,
-            description,
-            duration,
-            lectureIndex,
-            courseId,
-            lectureId
-        });
-        
         const lecture = await Lecture.findById(lectureId);
         if(!lecture){
             return res.status(404).json({
                 message:"Lecture not found!"
             })
         }
-
-        console.log("Current lecture before update:", lecture);
 
         const hadVideo = !!lecture.videoUrl;
         
@@ -315,7 +301,6 @@ export const editLecture = async (req,res) => {
 
         await lecture.save();
         
-        console.log("Updated lecture:", lecture);
 
         // Ensure the course still has the lecture id if it was not aleardy added;
         const course = await Course.findById(courseId).populate('creator', 'name');
@@ -614,7 +599,6 @@ export const getCourseStats = async (req, res) => {
             }
         ]);
         
-        console.log(courseStats);
         // Get top categories
         const topCategories = await Course.aggregate([
             { $group: { _id: "$category", count: { $sum: 1 } } },

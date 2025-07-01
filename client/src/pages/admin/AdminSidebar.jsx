@@ -10,10 +10,16 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu, Users, BarChart3, Settings, TrendingUp } from "lucide-react";
+import { Menu, Users, BarChart3, Settings, TrendingUp, Home } from "lucide-react";
 
 const AdminSidebar = () => {
   const sidebarItems = [
+    {
+      icon: Home,
+      label: "Home",
+      path: "/",
+      isExternal: true
+    },
     {
       icon: BarChart3,
       label: "Dashboard",
@@ -58,9 +64,18 @@ const AdminSidebar = () => {
               <li key={index}>
                 <Link
                   to={item.path}
-                  className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white rounded-lg transition-all duration-200 group"
+                  className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group ${
+                    item.path === "/"
+                      ? "text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-300"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+                  }`}
                 >
-                  <item.icon size={20} className="group-hover:scale-105 transition-transform" />
+                  <item.icon 
+                    size={20} 
+                    className={`group-hover:scale-105 transition-transform ${
+                      item.path === "/" ? "text-green-600 dark:text-green-400 group-hover:text-green-700 dark:group-hover:text-green-300" : ""
+                    }`} 
+                  />
                   <span className="truncate">{item.label}</span>
                 </Link>
               </li>
@@ -93,9 +108,16 @@ const AdminSidebar = () => {
                       <SheetClose asChild>
                         <Link
                           to={item.path}
-                          className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white rounded-lg transition-all duration-200"
+                          className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
+                            item.path === "/"
+                              ? "text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-300"
+                              : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+                          }`}
                         >
-                          <item.icon size={20} />
+                          <item.icon 
+                            size={20} 
+                            className={item.path === "/" ? "text-green-600 dark:text-green-400" : ""} 
+                          />
                           <span>{item.label}</span>
                         </Link>
                       </SheetClose>

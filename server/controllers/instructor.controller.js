@@ -464,8 +464,6 @@ export const sendMessageToStudent = async (req, res) => {
       sendEmail: true
     });
 
-    console.log(`Message from instructor ${instructorId} to student ${studentId}: ${message}`);
-
     return res.status(200).json({
       success: true,
       message: "Message sent successfully"
@@ -485,7 +483,6 @@ export const sendAnnouncement = async (req, res) => {
     const instructorId = req.user._id;
     const { title, message, courseId } = req.body;
 
-    // console.log(req.body);
     if (!title || !message) {
       return res.status(400).json({
         success: false,
@@ -538,8 +535,6 @@ export const sendAnnouncement = async (req, res) => {
         sendEmail: true
       });
     }
-
-    console.log(`Announcement from instructor ${instructorId} to ${uniqueStudents.length} students: ${title} - ${message}`);
 
     return res.status(200).json({
       success: true,

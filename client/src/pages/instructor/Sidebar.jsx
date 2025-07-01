@@ -7,7 +7,8 @@ import {
   BarChart3,
   Calendar,
   Bell,
-  HelpCircle
+  HelpCircle,
+  Home
 } from "lucide-react";
 import React from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
@@ -25,6 +26,13 @@ const Sidebar = () => {
   const unreadCount = messagesData?.unreadCount || 0;
   
   const sidebarItems = [
+    {
+      to: "/",
+      icon: Home,
+      label: "Home",
+      badge: null,
+      isExternal: true
+    },
     {
       to: "dashboard",
       icon: ChartNoAxesColumn,
@@ -64,6 +72,7 @@ const Sidebar = () => {
   ];
 
   const isActiveRoute = (route) => {
+    if (route === "/") return false; // Home route is never "active" in instructor sidebar
     return location.pathname.includes(route);
   };
 
@@ -94,14 +103,20 @@ const Sidebar = () => {
                   className={`flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group ${
                     isActive
                       ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
-                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+                      : item.to === "/" 
+                        ? "text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-300"
+                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <Icon 
                       size={20} 
                       className={`${
-                        isActive ? "text-blue-700 dark:text-blue-300" : "text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
+                        isActive 
+                          ? "text-blue-700 dark:text-blue-300" 
+                          : item.to === "/"
+                            ? "text-green-600 dark:text-green-400 group-hover:text-green-700 dark:group-hover:text-green-300"
+                            : "text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
                       } group-hover:scale-105 transition-transform`} 
                     />
                     <span className={`truncate ${isActive ? "text-blue-700 dark:text-blue-300" : ""}`}>

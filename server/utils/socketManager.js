@@ -36,8 +36,6 @@ class SocketManager {
     });
 
     this.io.on('connection', (socket) => {
-      console.log(`User connected: ${socket.userId}`);
-      
       // Store user-socket mapping
       this.userSocketMap.set(socket.userId, socket.id);
 
@@ -57,7 +55,6 @@ class SocketManager {
 
       // Handle disconnection
       socket.on('disconnect', () => {
-        console.log(`User disconnected: ${socket.userId}`);
         this.userSocketMap.delete(socket.userId);
       });
 
@@ -66,15 +63,12 @@ class SocketManager {
         console.error('Socket error:', error);
       });
     });
-
-    console.log('Socket.io server initialized');
   }
 
   // Send notification to specific user
   sendNotificationToUser(userId, notification) {
     if (this.io) {
       this.io.to(`user_${userId}`).emit('new_notification', notification);
-      console.log(`Notification sent to user ${userId}`);
     }
   }
 
@@ -84,7 +78,6 @@ class SocketManager {
       userIds.forEach(userId => {
         this.io.to(`user_${userId}`).emit('new_notification', notification);
       });
-      console.log(`Notification sent to ${userIds.length} users`);
     }
   }
 
@@ -120,4 +113,4 @@ class SocketManager {
 // Create singleton instance
 const socketManager = new SocketManager();
 
-export default socketManager; 
+export default socketManager;

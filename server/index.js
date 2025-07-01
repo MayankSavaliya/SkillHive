@@ -50,8 +50,7 @@ app.use("/notification", notificationRoute);
  
  
 server.listen(PORT, () => {
-    console.log(`Server listen at port ${PORT}`);
-    console.log(`Socket.io server is ready for connections`);
-})
+    console.log(`Server is running on port ${PORT}`);
+});
 
 

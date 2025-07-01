@@ -8,7 +8,6 @@ try {
   // Try to read from file first (easier for development)
   const serviceAccountPath = path.join(process.cwd(), 'config', 'serviceAccountKey.json');
   serviceAccount = JSON.parse(readFileSync(serviceAccountPath, 'utf8'));
-  console.log('✅ Using Firebase service account key file');
 } catch (error) {
   // Fallback to environment variables
   if (process.env.FIREBASE_PROJECT_ID && 
@@ -27,7 +26,6 @@ try {
       auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
       client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL
     };
-    console.log('✅ Using Firebase environment variables');
   } else {
     console.error('❌ Firebase configuration missing!');
     console.error('Please either:');
@@ -47,7 +45,6 @@ export const initializeFirebase = () => {
       credential: admin.credential.cert(serviceAccount),
       projectId: serviceAccount.project_id
     });
-    console.log('🔥 Firebase Admin SDK initialized successfully');
   }
 };
 

@@ -22,7 +22,7 @@ export const createCheckoutSession = async (req, res) => {
       amount: course.coursePrice,
       status: "pending",
     });
-    console.log(newPurchase);
+    
     // Create a Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -56,7 +56,7 @@ export const createCheckoutSession = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Error while creating session" });
     }
-    console.log(session);
+
     // Save the purchase record
     newPurchase.paymentId = session.id;
     await newPurchase.save();
@@ -222,3 +222,12 @@ export const getAllPurchasedCourse = async (_, res) => {
     console.log(error);
   }
 };
+
+export const checkSessionComplete = async (req,res) => {
+    try {
+        // ...existing code...
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({message: "Failed to check session status"});
+    }
+}
