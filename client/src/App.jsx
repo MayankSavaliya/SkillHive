@@ -42,8 +42,45 @@ import AdminCourseDetails from "./pages/admin/AdminCourseDetails";
 
 const appRouter = createBrowserRouter(
   [
+    // Standalone pages (no MainLayout/Navbar)
     {
       path: "/",
+      element: (
+        <ThemeProvider>
+          <AuthenticatedUser>
+            <Landing />
+          </AuthenticatedUser>
+        </ThemeProvider>
+      ),
+    },
+    {
+      path: "/login",
+      element: (
+        <ThemeProvider>
+          <AuthenticatedUser>
+            <Login />
+          </AuthenticatedUser>
+        </ThemeProvider>
+      ),
+    },
+    
+        // Individual pages that need the navbar (wrapped in MainLayout)
+    {
+      path: "/courses",
+      element: (
+        <ThemeProvider>
+          <MainLayout />
+        </ThemeProvider>
+      ),
+      children: [
+        {
+          index: true,
+          element: <Courses />,
+        },
+      ],
+    },
+    {
+      path: "/my-learning",
       element: (
         <ThemeProvider>
           <MainLayout />
@@ -53,169 +90,195 @@ const appRouter = createBrowserRouter(
         {
           index: true,
           element: (
-            <AuthenticatedUser>
-              <Landing />
-            </AuthenticatedUser>
+            <ProtectedRoute>
+              <MyLearning />
+            </ProtectedRoute>
           ),
         },
+      ],
+    },
+    {
+      path: "/profile",
+      element: (
+        <ThemeProvider>
+          <MainLayout />
+        </ThemeProvider>
+      ),
+      children: [
         {
-          path: "login",
+          index: true,
           element: (
-            <AuthenticatedUser>
-              <Login />
-            </AuthenticatedUser>
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
           ),
         },
-      {
-        path: "courses",
-        element: <Courses />,
-      },
-      {
-        path: "my-learning",
-        element: (
-          <ProtectedRoute>
-            <MyLearning />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "profile",
-        element: (
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        ),
-      },
+      ],
+    },
+    {
+      path: "/notifications",
+      element: (
+        <ThemeProvider>
+          <MainLayout />
+        </ThemeProvider>
+      ),
+      children: [
+        {
+          index: true,
+          element: (
+            <ProtectedRoute>
+              <NotificationsPage />
+            </ProtectedRoute>
+          ),
+        },
+      ],
+    },
+    {
+      path: "/course-detail/:courseId",
+      element: (
+        <ThemeProvider>
+          <MainLayout />
+        </ThemeProvider>
+      ),
+      children: [
+        {
+          index: true,
+          element: (
+            <ProtectedRoute>
+              <CourseDetail />
+            </ProtectedRoute>
+          ),
+        },
+      ],
+    },
+    {
+      path: "/course-progress/:courseId",
+      element: (
+        <ThemeProvider>
+          <MainLayout />
+        </ThemeProvider>
+      ),
+      children: [
+        {
+          index: true,
+          element: (
+            <ProtectedRoute>
+              <PurchaseCourseProtectedRoute>
+                <CourseProgress />
+              </PurchaseCourseProtectedRoute>
+            </ProtectedRoute>
+          ),
+        },
+      ],
+    },
 
-      {
-        path: "notifications",
-        element: (
-          <ProtectedRoute>
-            <NotificationsPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "course-detail/:courseId",
-        element: (
-          <ProtectedRoute>
-            <CourseDetail />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "course-progress/:courseId",
-        element: (
-          <ProtectedRoute>
-            <PurchaseCourseProtectedRoute>
-            <CourseProgress />
-            </PurchaseCourseProtectedRoute>
-          </ProtectedRoute>
-        ),
-      },
-
-      // instructor routes
-      {
-        path: "instructor",
-        element: (
+    // instructor routes
+    {
+      path: "instructor",
+      element: (
+        <ThemeProvider>
           <InstructorRoute>
             <Sidebar />
           </InstructorRoute>
-        ),
-        children: [
-          {
-            path: "dashboard",
-            element: <Dashboard />,
-          },
-          {
-            path: "course",
-            element: <CourseTable />,
-          },
-          {
-            path: "course/create",
-            element: <AddCourse />,
-          },
-          {
-            path: "course/:courseId",
-            element: <EditCourse />,
-          },
-          {
-            path: "course/view/:courseId",
-            element: <ViewCourse />,
-          },
-          {
-            path: "course/:courseId/lecture",
-            element: <CreateLecture />,
-          },
-          {
-            path: "course/:courseId/lecture/:lectureId",
-            element: <EditLecture />,
-          },
-          {
-            path: "students",
-            element: <Students />,
-          },
-          {
-            path: "analytics",
-            element: <Analytics />,
-          },
-          {
-            path: "messages",
-            element: <Messages />,
-          },
-          {
-            path: "settings",
-            element: <Settings />,
-          },
-        ],
-      },
+        </ThemeProvider>
+      ),
+      children: [
+        {
+          path: "dashboard",
+          element: <Dashboard />,
+        },
+        {
+          path: "course",
+          element: <CourseTable />,
+        },
+        {
+          path: "course/create",
+          element: <AddCourse />,
+        },
+        {
+          path: "course/:courseId",
+          element: <EditCourse />,
+        },
+        {
+          path: "course/view/:courseId",
+          element: <ViewCourse />,
+        },
+        {
+          path: "course/:courseId/lecture",
+          element: <CreateLecture />,
+        },
+        {
+          path: "course/:courseId/lecture/:lectureId",
+          element: <EditLecture />,
+        },
+        {
+          path: "students",
+          element: <Students />,
+        },
+        {
+          path: "analytics",
+          element: <Analytics />,
+        },
+        {
+          path: "messages",
+          element: <Messages />,
+        },
+        {
+          path: "settings",
+          element: <Settings />,
+        },
+      ],
+    },
 
-      // admin routes
-      {
-        path: "admin",
-        element: (
+    // admin routes
+    {
+      path: "admin",
+      element: (
+        <ThemeProvider>
           <AdminRoute>
             <AdminSidebar />
           </AdminRoute>
-        ),
-        children: [
-          {
-            path: "dashboard",
-            element: <AdminDashboard />,
-          },
-          {
-            path: "users",
-            element: <AdminUserManagement />,
-          },
-          {
-            path: "courses",
-            element: <AdminCourseManagement />,
-          },
-          {
-            path: "courses/:courseId/details",
-            element: <AdminCourseDetails />,
-          },
-          {
-            path: "analytics",
-            element: <AdminAnalytics />,
-          },
-          {
-            path: "settings",
-            element: <AdminSettings />,
-          },
-        ],
-      },
-    ],
-  },
-  {
-    path: "*",
-    element: (
-      <ThemeProvider>
-        <RouteErrorBoundary />
-      </ThemeProvider>
-    ),
-  },
-]);
+        </ThemeProvider>
+      ),
+      children: [
+        {
+          path: "dashboard",
+          element: <AdminDashboard />,
+        },
+        {
+          path: "users",
+          element: <AdminUserManagement />,
+        },
+        {
+          path: "courses",
+          element: <AdminCourseManagement />,
+        },
+        {
+          path: "courses/:courseId/details",
+          element: <AdminCourseDetails />,
+        },
+        {
+          path: "analytics",
+          element: <AdminAnalytics />,
+        },
+        {
+          path: "settings",
+          element: <AdminSettings />,
+        },
+      ],
+    },
+    
+    // Error boundary
+    {
+      path: "*",
+      element: (
+        <ThemeProvider>
+          <RouteErrorBoundary />
+        </ThemeProvider>
+      ),
+    },
+  ]
+);
 
 function App() {
   return (

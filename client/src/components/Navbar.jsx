@@ -1,4 +1,4 @@
-import { Menu, BookOpen, Bell, User, GraduationCap, Settings, LogOut, BarChart3 } from "lucide-react";
+import { Menu, BookOpen, Bell, User, GraduationCap, Settings, LogOut, BarChart3, Search } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import {
   DropdownMenu,
@@ -75,14 +75,16 @@ const Navbar = () => {
         <div className="flex items-center gap-8 ml-12">
           <Link 
             to="/courses" 
-            className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
+            className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
           >
+            <Search className="h-4 w-4" />
             Browse Courses
           </Link>
           <Link 
             to="/my-learning" 
-            className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
+            className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
           >
+            <GraduationCap className="h-4 w-4" />
             My Learning
           </Link>
         </div>
