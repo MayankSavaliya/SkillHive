@@ -28,9 +28,9 @@ import {
   Activity
 } from "lucide-react";
 import React, { useEffect, useState, useRef } from "react";
-import Course from "./Course";
 import {
   useUpdateUserMutation,
+  useRequestInstructorRoleMutation,
 } from "@/features/api/authApi";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
@@ -49,6 +49,7 @@ const Profile = () => {
   const [isImageError, setIsImageError] = useState(false);
 
   const [updateUser, { data: updateUserData, isLoading: updateUserIsLoading, isSuccess }] = useUpdateUserMutation();
+  const [requestInstructorRole, { isLoading: isRequestingInstructor }] = useRequestInstructorRoleMutation();
 
   const onChangeHandler = (e) => {
     const file = e.target.files?.[0];
@@ -93,6 +94,15 @@ const Profile = () => {
       toast.error(error?.data?.message || "Failed to update profile");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleRequestInstructorRole = async () => {
+    try {
+      const result = await requestInstructorRole().unwrap();
+      toast.success("Instructor role request sent successfully! We'll review your application soon.");
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to request instructor role");
     }
   };
 
@@ -150,19 +160,18 @@ const Profile = () => {
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         {/* Enhanced Header Section */}
-        <div className="text-center mb-12 lg:mb-16">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100/80 to-indigo-100/80 dark:from-blue-900/40 dark:to-indigo-900/40 text-blue-700 dark:text-blue-300 px-6 py-3 rounded-full text-sm font-semibold mb-6 shadow-lg backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 transition-all duration-300 hover:scale-105">
-            <User className="h-5 w-5" />
-            <span>Your Profile Dashboard</span>
+        <div className="text-center mb-8 lg:mb-12">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100/80 to-indigo-100/80 dark:from-blue-900/40 dark:to-indigo-900/40 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-medium mb-4 shadow-md backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 transition-all duration-300">
+            <User className="h-4 w-4" />
+            <span>Your Profile</span>
           </div>
           
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white mb-4 leading-tight tracking-tight">
-            Welcome back,
-            <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent"> {user.name.split(' ')[0]}</span>
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2 leading-tight">
+            Welcome back, {user.name.split(' ')[0]}
           </h1>
           
-          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Manage your profile, track your learning progress, and customize your experience.
+          <p className="text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto">
+            Manage your profile and account settings.
           </p>
         </div>
 
@@ -420,55 +429,69 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Enhanced Enrolled Courses Section */}
-        <div className="space-y-8">
-          <div className="text-center">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Your Learning Journey
-            </h2>
-            <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Continue learning and track your progress across all your enrolled courses
-            </p>
-          </div>
-
-          {user.enrolledCourses.length === 0 ? (
-            <div className="text-center py-16 lg:py-24">
-              <div className="glass rounded-3xl p-12 lg:p-20 max-w-2xl mx-auto shadow-2xl border border-white/20 dark:border-gray-700/50 backdrop-blur-xl">
-                <div className="mb-12">
-                  <div className="w-24 h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-blue-100 via-purple-50 to-indigo-100 dark:from-blue-900/30 dark:via-purple-900/20 dark:to-indigo-900/30 rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl animate-pulse">
-                    <BookOpen className="h-12 w-12 lg:h-16 lg:w-16 text-blue-600 dark:text-blue-400" />
+        {/* Become an Instructor Section */}
+        {user.role === 'student' && (
+          <div className="glass rounded-3xl p-6 lg:p-8 shadow-2xl border border-white/20 dark:border-gray-700/50 backdrop-blur-xl transition-all duration-300 hover:shadow-3xl">
+            <div className="text-center">
+              <div className="w-16 h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                <User className="h-8 w-8 lg:h-10 lg:w-10 text-white" />
+              </div>
+              
+              <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                Become an Instructor
+              </h3>
+              
+              <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto leading-relaxed">
+                Share your knowledge and expertise with thousands of students worldwide. 
+                Join our community of passionate educators and start teaching today!
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <BookOpen className="h-6 w-6 text-white" />
                   </div>
-                  <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-6">
-                    Ready to start your learning adventure?
-                  </h3>
-                  <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-400 mb-12 leading-relaxed">
-                    You haven't enrolled in any courses yet. Explore our extensive course library and begin your journey to mastering new skills today!
-                  </p>
+                  <h4 className="font-bold text-gray-900 dark:text-white mb-1">Create Courses</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Build and publish your own courses</p>
                 </div>
                 
-                <button 
-                  onClick={() => window.location.href = '/courses'}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-10 py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group"
-                >
-                  <BookOpen className="mr-2 h-6 w-6 group-hover:rotate-12 transition-transform duration-300" />
-                  Explore Courses
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-              {user.enrolledCourses.map((course, index) => (
-                <div 
-                  key={course._id} 
-                  className="animate-fade-in group" 
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <Course course={course} />
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <TrendingUp className="h-6 w-6 text-white" />
+                  </div>
+                  <h4 className="font-bold text-gray-900 dark:text-white mb-1">Earn Revenue</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Monetize your teaching skills</p>
                 </div>
-              ))}
+                
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <Award className="h-6 w-6 text-white" />
+                  </div>
+                  <h4 className="font-bold text-gray-900 dark:text-white mb-1">Build Reputation</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Establish yourself as an expert</p>
+                </div>
+              </div>
+              
+              <Button
+                onClick={handleRequestInstructorRole}
+                disabled={isRequestingInstructor}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 group disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isRequestingInstructor ? (
+                  <>
+                    <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                    Submitting Request...
+                  </>
+                ) : (
+                  <>
+                    <User className="mr-2 h-6 w-6 group-hover:rotate-12 transition-transform duration-300" />
+                    Request Instructor Access
+                  </>
+                )}
+              </Button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

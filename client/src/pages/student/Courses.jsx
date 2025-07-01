@@ -46,18 +46,17 @@ const Courses = () => {
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-200/20 dark:bg-purple-900/20 rounded-full blur-3xl"></div>
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">        {/* Hero Header Section */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-semibold mb-6 shadow-lg backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 animate-fade-in">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-medium mb-4 shadow-md backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50">
             <BookOpen className="h-4 w-4" />
-            <span>Discover Amazing Courses</span>
+            <span>Course Library</span>
           </div>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight tracking-tight">
-            Explore Our
-            <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent animate-fade-in"> Course Library</span>
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2 leading-tight">
+            Explore Our Courses
           </h1>
           
-          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed font-light">
-            Choose from thousands of expertly crafted courses and accelerate your learning journey with industry professionals.
+          <p className="text-base md:text-lg text-gray-600 dark:text-gray-300 mb-6 max-w-xl mx-auto">
+            Choose from expertly crafted courses and accelerate your learning journey.
           </p>
         </div>        {/* Search and Filters Section */}
         <div className="glass rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 p-5 md:p-6 mb-10 backdrop-blur-xl bg-white/70 dark:bg-gray-800/70">

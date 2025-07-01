@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { auth } from "@/config/firebase";
 
 const NOTIFICATION_API = `${import.meta.env.VITE_SERVER_URL || 'http://localhost:8080'}/notification`;
 
@@ -7,13 +8,18 @@ export const notificationApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: NOTIFICATION_API,
     credentials: "include",
-    prepareHeaders: (headers, { getState }) => {
-      const token = getState().auth.token;
-      if (token) {
-        headers.set("authorization", `Bearer ${token}`);
+    prepareHeaders: async (headers) => {
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          const token = await user.getIdToken();
+          headers.set('Authorization', `Bearer ${token}`);
+        }
+      } catch (error) {
+        console.error('Error getting Firebase token:', error);
       }
       return headers;
-    },
+    }
   }),
   tagTypes: ["Notification"],
   endpoints: (builder) => ({

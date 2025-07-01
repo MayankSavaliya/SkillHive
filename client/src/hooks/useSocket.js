@@ -57,35 +57,6 @@ const useSocket = () => {
       dispatch(markAllAsRead());
     });
 
-    // Message events
-    socket.on('new_message', (message) => {
-      // Handle new message
-    });
-
-    // Course update events
-    socket.on('course_update', (update) => {
-      // Handle course update
-    });
-
-    // System announcements
-    socket.on('announcement', (announcement) => {
-      // Handle announcement
-    });
-
-    // System maintenance notifications
-    socket.on('system_maintenance', (notification) => {
-      // Handle maintenance notification
-    });
-
-    // Typing indicators (for future messaging feature)
-    socket.on('user_typing', (data) => {
-      // Handle typing indicator
-    });
-
-    socket.on('user_stopped_typing', (data) => {
-      // Handle stop typing indicator
-    });
-
     // Cleanup on unmount
     return () => {
       socket.disconnect();
@@ -106,20 +77,6 @@ const useSocket = () => {
     markAllNotificationsRead: () => {
       if (socketRef.current) {
         socketRef.current.emit('mark_all_notifications_read');
-      }
-    },
-
-    // Start typing indicator
-    startTyping: (data) => {
-      if (socketRef.current) {
-        socketRef.current.emit('typing_start', data);
-      }
-    },
-
-    // Stop typing indicator
-    stopTyping: (data) => {
-      if (socketRef.current) {
-        socketRef.current.emit('typing_stop', data);
       }
     },
 

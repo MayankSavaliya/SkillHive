@@ -211,7 +211,7 @@ export const getInstructorStudents = async (req, res) => {
       success: false,
       message: "Failed to get instructor students data"
     });
-  }
+  } 
 };
 
 // Get course performance metrics
@@ -245,7 +245,7 @@ export const getCoursePerformance = async (req, res) => {
           totalRevenue,
           totalEnrollments,
           uniqueStudents: uniqueStudents.length,
-          lectureCount: course.lectures ? course.lectures.length : 0,
+          lectureCount: course.lectures ? course.lectures.length : 0, 
           createdAt: course.createdAt,
           // Mock rating data (can be enhanced with actual rating system)
           avgRating: (Math.random() * 2 + 3).toFixed(1),
@@ -485,6 +485,7 @@ export const sendAnnouncement = async (req, res) => {
     const instructorId = req.user._id;
     const { title, message, courseId } = req.body;
 
+    // console.log(req.body);
     if (!title || !message) {
       return res.status(400).json({
         success: false,

@@ -55,21 +55,6 @@ class SocketManager {
         this.io.to(`user_${socket.userId}`).emit('all_notifications_read');
       });
 
-      // Handle typing indicators for messages
-      socket.on('typing_start', (data) => {
-        socket.to(`user_${data.recipientId}`).emit('user_typing', {
-          userId: socket.userId,
-          conversationId: data.conversationId
-        });
-      });
-
-      socket.on('typing_stop', (data) => {
-        socket.to(`user_${data.recipientId}`).emit('user_stopped_typing', {
-          userId: socket.userId,
-          conversationId: data.conversationId
-        });
-      });
-
       // Handle disconnection
       socket.on('disconnect', () => {
         console.log(`User disconnected: ${socket.userId}`);
@@ -103,55 +88,6 @@ class SocketManager {
     }
   }
 
-  // Send real-time message
-  sendMessageToUser(userId, message) {
-    if (this.io) {
-      this.io.to(`user_${userId}`).emit('new_message', message);
-      console.log(`Message sent to user ${userId}`);
-    }
-  }
-
-  // Broadcast announcement to all connected users
-  broadcastAnnouncement(announcement) {
-    if (this.io) {
-      this.io.emit('announcement', announcement);
-      console.log('Announcement broadcasted to all users');
-    }
-  }
-
-  // Send course update to enrolled students
-  sendCourseUpdateToStudents(studentIds, update) {
-    if (this.io) {
-      studentIds.forEach(studentId => {
-        this.io.to(`user_${studentId}`).emit('course_update', update);
-      });
-      console.log(`Course update sent to ${studentIds.length} students`);
-    }
-  }
-
-  // Send system maintenance notification
-  sendMaintenanceNotification(notification) {
-    if (this.io) {
-      this.io.emit('system_maintenance', notification);
-      console.log('Maintenance notification sent to all users');
-    }
-  }
-
-  // Get online users count
-  getOnlineUsersCount() {
-    return this.userSocketMap.size;
-  }
-
-  // Check if user is online
-  isUserOnline(userId) {
-    return this.userSocketMap.has(userId);
-  }
-
-  // Get all online users
-  getOnlineUsers() {
-    return Array.from(this.userSocketMap.keys());
-  }
-
   // Send notification with real-time delivery
   async sendNotificationWithRealtime(notification) {
     // Send real-time notification
@@ -173,6 +109,11 @@ class SocketManager {
     notifications.forEach(notification => {
       this.sendNotificationWithRealtime(notification);
     });
+  }
+
+  // Check if user is online
+  isUserOnline(userId) {
+    return this.userSocketMap.has(userId);
   }
 }
 
