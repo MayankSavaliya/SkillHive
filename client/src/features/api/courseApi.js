@@ -1,14 +1,13 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { auth } from "@/config/firebase";
-
-const COURSE_API = "http://localhost:8080/course";
+import { API_ENDPOINTS } from "@/config/api";
 // const COURSE_API = "https://skillhive-backend.vercel.app/course";
 
 export const courseApi = createApi({
   reducerPath: "courseApi",
   tagTypes: ["Refetch_Creator_Course", "Refetch_Lecture"],
   baseQuery: fetchBaseQuery({
-    baseUrl: COURSE_API,
+            baseUrl: API_ENDPOINTS.COURSE,
     credentials: "include",
     prepareHeaders: async (headers) => {
       try {

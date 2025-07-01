@@ -1,14 +1,13 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { auth } from "@/config/firebase";
-
-const USERS_API = "http://localhost:8080/user";
+import { API_ENDPOINTS } from "@/config/api";
 // const USERS_API = "https://skillhive-backend.vercel.app/user";
 
 export const userApi = createApi({
   reducerPath: "userApi",
   tagTypes: ["Users"],
   baseQuery: fetchBaseQuery({
-    baseUrl: USERS_API,
+    baseUrl: API_ENDPOINTS.USER,
     credentials: "include",
     prepareHeaders: async (headers) => {
       try {

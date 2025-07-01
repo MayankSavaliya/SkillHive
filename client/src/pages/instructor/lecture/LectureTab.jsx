@@ -17,8 +17,7 @@ import { Loader2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { showToast } from "@/lib/toast";
-
-const MEDIA_API = "http://localhost:8080/media";
+import { API_ENDPOINTS } from "@/config/api";
 
 const LectureTab = () => {
   const [lectureTitle, setLectureTitle] = useState("");
@@ -64,7 +63,7 @@ const LectureTab = () => {
       formData.append("file", file);
       setMediaProgress(true);
       try {
-        const res = await axios.post(`${MEDIA_API}/upload-video`, formData, {
+        const res = await axios.post(`${API_ENDPOINTS.MEDIA}/upload-video`, formData, {
           onUploadProgress: ({ loaded, total }) => {
             setUploadProgress(Math.round((loaded * 100) / total));
           },

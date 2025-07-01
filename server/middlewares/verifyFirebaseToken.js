@@ -13,7 +13,7 @@ export const verifyFirebaseToken = async (req, res, next) => {
 
     // Get token from Authorization header
     const authHeader = req.header('Authorization');
-    let token = null;
+    let token;
     
     if (authHeader && authHeader.startsWith('Bearer ')) {
       token = authHeader.replace('Bearer ', '');

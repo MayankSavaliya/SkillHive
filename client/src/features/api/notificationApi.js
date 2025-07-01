@@ -1,12 +1,11 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { auth } from "@/config/firebase";
-
-const NOTIFICATION_API = `${import.meta.env.VITE_SERVER_URL || 'http://localhost:8080'}/notification`;
+import { API_ENDPOINTS } from "@/config/api";
 
 export const notificationApi = createApi({
   reducerPath: "notificationApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: NOTIFICATION_API,
+    baseUrl: API_ENDPOINTS.NOTIFICATION,
     credentials: "include",
     prepareHeaders: async (headers) => {
       try {

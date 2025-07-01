@@ -46,30 +46,26 @@ const appRouter = createBrowserRouter(
       path: "/",
       element: (
         <ThemeProvider>
-          <AuthenticatedUser>
-            <Landing />
-          </AuthenticatedUser>
-        </ThemeProvider>
-      ),
-    },
-    {
-      path: "/login",
-      element: (
-        <ThemeProvider>
-          <AuthenticatedUser>
-            <Login />
-          </AuthenticatedUser>
-        </ThemeProvider>
-      ),
-    },
-    {
-      path: "/",
-      element: (
-        <ThemeProvider>
           <MainLayout />
         </ThemeProvider>
       ),
-    children: [
+      children: [
+        {
+          index: true,
+          element: (
+            <AuthenticatedUser>
+              <Landing />
+            </AuthenticatedUser>
+          ),
+        },
+        {
+          path: "login",
+          element: (
+            <AuthenticatedUser>
+              <Login />
+            </AuthenticatedUser>
+          ),
+        },
       {
         path: "courses",
         element: <Courses />,

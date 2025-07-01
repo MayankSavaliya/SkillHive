@@ -6,7 +6,7 @@ import { CoursePurchase } from "../models/coursePurchase.model.js";
 export const getUserProfile = async (req,res) => {
     try {
         const userId = req.user._id;
-        console.log("HI");
+        // Debug log removed for production
         const user = await User.findById(userId).select("-password").populate({
             path: "enrolledCourses",
             populate: {

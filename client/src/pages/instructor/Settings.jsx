@@ -37,6 +37,7 @@ import {
 } from "@/features/api/instructorApi";
 import { useCreateNotificationMutation } from "@/features/api/notificationApi";
 import { showToast } from "@/lib/toast";
+import { API_ENDPOINTS } from "@/config/api";
 
 const Settings = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -110,7 +111,7 @@ const Settings = () => {
 
   const testNotificationSystem = async () => {
     try {
-      await fetch(`${import.meta.env.VITE_SERVER_URL}/notification/test`, {
+              await fetch(`${API_ENDPOINTS.NOTIFICATION}/test`, {
         method: 'POST',
         credentials: 'include',
         headers: {

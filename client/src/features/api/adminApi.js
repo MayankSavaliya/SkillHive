@@ -1,13 +1,12 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { auth } from "@/config/firebase";
-
-const ADMIN_API = "http://localhost:8080/";
+import { API_ENDPOINTS } from "@/config/api";
 // const ADMIN_API = "https://skillhive-backend.vercel.app/";
 
 export const adminApi = createApi({
     reducerPath: "adminApi",
     baseQuery: fetchBaseQuery({
-        baseUrl: ADMIN_API,
+        baseUrl: `${API_ENDPOINTS.ADMIN}/`,
         credentials: 'include',
         prepareHeaders: async (headers) => {
             try {
