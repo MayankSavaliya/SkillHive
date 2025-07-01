@@ -21,7 +21,7 @@ import {
   useDeleteNotificationMutation,
 } from '@/features/api/notificationApi';
 import { markAsRead, markAllAsRead } from '@/features/notificationSlice';
-import { toast } from 'sonner';
+import { showToast } from '@/lib/toast';
 import { useNavigate } from 'react-router-dom';
 
 const NotificationsPage = () => {
@@ -65,10 +65,10 @@ const NotificationsPage = () => {
     try {
       await markAllAsReadMutation().unwrap();
       dispatch(markAllAsRead());
-      toast.success('All notifications marked as read');
+      showToast.success('All notifications marked as read', { showCancel: true });
       refetch();
     } catch (error) {
-      toast.error('Failed to mark all notifications as read');
+      showToast.error('Failed to mark all notifications as read', { showCancel: true });
     }
   };
 
@@ -77,10 +77,10 @@ const NotificationsPage = () => {
     e.stopPropagation();
     try {
       await deleteNotificationMutation(notificationId).unwrap();
-      toast.success('Notification deleted');
+      showToast.success('Notification deleted', { showCancel: true });
       refetch();
     } catch (error) {
-      toast.error('Failed to delete notification');
+      showToast.error('Failed to delete notification', { showCancel: true });
     }
   };
 

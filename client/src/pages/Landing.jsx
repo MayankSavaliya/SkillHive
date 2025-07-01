@@ -32,7 +32,7 @@ const Landing = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if(searchQuery.trim() !== ""){
-      navigate(`/course/search?query=${searchQuery}`)
+      navigate(`/courses?search=${searchQuery}`)
     }
     setSearchQuery("");
   }

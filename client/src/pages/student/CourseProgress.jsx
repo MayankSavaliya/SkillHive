@@ -34,7 +34,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { showToast } from "@/lib/toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const CourseProgress = () => {
@@ -50,14 +50,14 @@ const CourseProgress = () => {
   useEffect(() => {
     if (completedSuccess) {
       refetch();
-      toast.success(markCompleteData.message || "🎉 Course completed!", {
+      showToast.success(markCompleteData.message || "🎉 Course completed!", {
         description: "Congratulations on finishing this course. Keep learning!",
         duration: 4000,
       });
     }
     if (inCompletedSuccess) {
       refetch();
-      toast.success(markInCompleteData.message || "📚 Course marked as incomplete", {
+      showToast.success(markInCompleteData.message || "📚 Course marked as incomplete", {
         description: "You can continue learning and complete it anytime.",
         duration: 3000,
       });

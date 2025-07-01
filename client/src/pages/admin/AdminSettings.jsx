@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Settings, Shield, Bell, Database, Mail, Globe } from "lucide-react";
-import { toast } from "sonner";
+import { showToast } from "@/lib/toast";
 
 const AdminSettings = () => {
   const [settings, setSettings] = useState({
@@ -33,12 +33,12 @@ const AdminSettings = () => {
 
   const handleSaveSettings = () => {
     // Implement save functionality
-    toast.success("Settings saved successfully!");
+            showToast.success("Settings saved successfully!", { showCancel: true });
   };
 
   const handleTestEmail = () => {
     // Implement test email functionality
-    toast.success("Test email sent successfully!");
+            showToast.success("Test email sent successfully!", { showCancel: true });
   };
 
   return (

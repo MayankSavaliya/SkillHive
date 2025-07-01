@@ -27,7 +27,7 @@ import {
 import { Loader2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { toast } from "sonner";
+import { showToast } from "@/lib/toast";
 
 const CourseTab = () => {
   
@@ -121,10 +121,10 @@ const CourseTab = () => {
       const response = await publishCourse({ courseId, query: action });
       if (response.data) {
         refetch();
-        toast.success(response.data.message);
+        showToast.success(response.data.message, { showCancel: true });
       }
     } catch (error) {
-      toast.error("Failed to update course status");
+              showToast.error("Failed to update course status", { showCancel: true });
     }
   };
 
@@ -139,13 +139,13 @@ const CourseTab = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      toast.success(data.message || "✅ Course updated successfully!", {
+      showToast.success(data.message || "✅ Course updated successfully!", {
         description: "Your course changes have been saved.",
         duration: 3000,
       });
     }
     if (error) {
-      toast.error("❌ " + (error.data.message || "Failed to update course"), {
+      showToast.error("❌ " + (error.data.message || "Failed to update course"), {
         description: "Please check your information and try again.",
         duration: 4000,
       });

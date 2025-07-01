@@ -26,7 +26,7 @@ import { Separator } from "./ui/separator";
 import { Link, useNavigate } from "react-router-dom";
 import { useFirebaseLogoutMutation } from "@/features/api/authApi";
 import { signOutUser } from "@/services/authService";
-import { toast } from "sonner";
+import { showToast } from "@/lib/toast";
 import { useSelector } from "react-redux";
 import NotificationBell from "./NotificationBell";
 import { useDispatch } from "react-redux";
@@ -46,10 +46,10 @@ const Navbar = () => {
       await firebaseLogout();
       await signOut(auth);
       dispatch(userLoggedOut());
-      toast.success("Logged out successfully");
+      showToast.success("Logged out successfully", { showCancel: true });
       navigate("/");
     } catch (error) {
-      toast.error("Failed to logout");
+      showToast.error("Failed to logout", { showCancel: true });
     }
   };
 

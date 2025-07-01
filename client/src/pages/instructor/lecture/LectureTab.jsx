@@ -16,7 +16,7 @@ import axios from "axios";
 import { Loader2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { toast } from "sonner";
+import { showToast } from "@/lib/toast";
 
 const MEDIA_API = "http://localhost:8080/media";
 
@@ -77,14 +77,14 @@ const LectureTab = () => {
             publicId: res.data.data.public_id,
           });
           setBtnDisable(false);
-          toast.success(res.data.message || "🎥 Video uploaded successfully!", {
+          showToast.success(res.data.message || "🎥 Video uploaded successfully!", {
             description: "Your lecture video is ready to be added to the course.",
             duration: 3000,
           });
         }
       } catch (error) {
         console.log(error);
-        toast.error("❌ Video upload failed", {
+        showToast.error("❌ Video upload failed", {
           description: "Please check your internet connection and try again.",
           duration: 4000,
         });
@@ -108,7 +108,7 @@ const LectureTab = () => {
     
     const response = await edtiLecture(lectureData);
     if (response.data) {
-      toast.success(response.data.message);
+              showToast.success(response.data.message, { showCancel: true });
     }
   };
 
@@ -118,13 +118,13 @@ const LectureTab = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      toast.success(data.message || "✅ Lecture updated successfully!", {
+      showToast.success(data.message || "✅ Lecture updated successfully!", {
         description: "Your lecture changes have been saved.",
         duration: 3000,
       });
     }
     if (error) {
-      toast.error("❌ " + (error.data.message || "Failed to update lecture"), {
+      showToast.error("❌ " + (error.data.message || "Failed to update lecture"), {
         description: "Please check your information and try again.",
         duration: 4000,
       });
@@ -133,7 +133,7 @@ const LectureTab = () => {
 
   useEffect(()=>{
     if(removeSuccess){
-      toast.success(removeData.message || "🗑️ Lecture deleted successfully!", {
+      showToast.success(removeData.message || "🗑️ Lecture deleted successfully!", {
         description: "The lecture has been removed from your course.",
         duration: 3000,
       });

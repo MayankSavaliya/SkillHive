@@ -47,7 +47,7 @@ import {
   Mail,
   Calendar
 } from "lucide-react";
-import { toast } from "sonner";
+import { showToast } from "@/lib/toast";
 
 const AdminUserManagement = () => {
   const [page, setPage] = useState(1);
@@ -87,13 +87,13 @@ const AdminUserManagement = () => {
         role: newRole 
       }).unwrap();
       
-      toast.success(`User role updated to ${newRole} successfully`);
+              showToast.success(`User role updated to ${newRole} successfully`, { showCancel: true });
       setShowRoleDialog(false);
       setSelectedUser(null);
       setNewRole("");
       refetch();
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to update user role");
+              showToast.error(error?.data?.message || "Failed to update user role", { showCancel: true });
     }
   };
 
@@ -102,12 +102,12 @@ const AdminUserManagement = () => {
     
     try {
       await deleteUser(selectedUser._id).unwrap();
-      toast.success("User deleted successfully");
+              showToast.success("User deleted successfully", { showCancel: true });
       setShowDeleteDialog(false);
       setSelectedUser(null);
       refetch();
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to delete user");
+              showToast.error(error?.data?.message || "Failed to delete user", { showCancel: true });
     }
   };
 

@@ -10,7 +10,7 @@ import {
 import { Loader2, Eye, EyeOff, BookOpen, Users, Award, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { showToast } from "@/lib/toast";
 import DarkMode from "@/DarkMode";
 import { 
   signUpWithEmailPassword, 
@@ -66,9 +66,10 @@ const Login = () => {
           });
           
           if (response.data?.success) {
-            toast.success(response.data.message, {
+            showToast.success(response.data.message, {
               description: "Welcome to SkillHive! You can now start learning.",
               duration: 4000,
+              showCancel: true,
             });
             setCurrentTab("login");
           }
@@ -79,9 +80,10 @@ const Login = () => {
           });
           
           if (response.data?.success) {
-            toast.success(response.data.message, {
+            showToast.success(response.data.message, {
               description: "You have successfully signed in to SkillHive.",
               duration: 3000,
+              showCancel: true,
             });
           }
         }

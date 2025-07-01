@@ -33,7 +33,7 @@ import {
   useRequestInstructorRoleMutation,
 } from "@/features/api/authApi";
 import { useSelector } from "react-redux";
-import { toast } from "sonner";
+import { showToast } from "@/lib/toast";
 import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
@@ -75,7 +75,7 @@ const Profile = () => {
       setIsEditing(false);
       setTempPhoto(null);
       setPreviewUrl(null);
-      toast.success(updateUserData.message || "Profile updated successfully!");
+      showToast.success(updateUserData.message || "Profile updated successfully!", { showCancel: true });
     }
   }, [isSuccess, updateUserData]);
 
@@ -89,9 +89,9 @@ const Profile = () => {
     setIsLoading(true);
     try {
       const result = await updateUser(formData).unwrap();
-      toast.success("Profile updated successfully!");
+              showToast.success("Profile updated successfully!", { showCancel: true });
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to update profile");
+              showToast.error(error?.data?.message || "Failed to update profile", { showCancel: true });
     } finally {
       setIsLoading(false);
     }
@@ -100,9 +100,9 @@ const Profile = () => {
   const handleRequestInstructorRole = async () => {
     try {
       const result = await requestInstructorRole().unwrap();
-      toast.success("Instructor role request sent successfully! We'll review your application soon.");
+              showToast.success("Instructor role request sent successfully! We'll review your application soon.", { showCancel: true });
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to request instructor role");
+              showToast.error(error?.data?.message || "Failed to request instructor role", { showCancel: true });
     }
   };
 

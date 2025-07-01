@@ -19,7 +19,7 @@ import {
 import React, { useState, useEffect } from "react";
 import Course from "./Course";
 import { useGetPublishedCourseQuery, useGetSearchCourseQuery } from "@/features/api/courseApi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const categories = [
   { id: "all", label: "All Courses", icon: "📚", color: "bg-slate-100 text-slate-700 hover:bg-slate-200", activeColor: "bg-blue-600 text-white" },
@@ -40,12 +40,21 @@ const sortOptions = [
 ];
  
 const Courses = () => {
+  const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("popular");
   const [viewMode, setViewMode] = useState("grid");
   const [priceFilter, setPriceFilter] = useState("");
   const navigate = useNavigate();
+
+  // Handle URL search parameters
+  useEffect(() => {
+    const urlSearchQuery = searchParams.get("search");
+    if (urlSearchQuery) {
+      setSearchQuery(urlSearchQuery);
+    }
+  }, [searchParams]);
 
   // Use search API when filters are applied
   const shouldUseSearch = selectedCategory !== "all" || priceFilter || searchQuery;

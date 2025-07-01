@@ -41,7 +41,7 @@ import {
   useGetInstructorStudentsQuery 
 } from "@/features/api/instructorApi";
 import { useGetCreatorCourseQuery } from "@/features/api/courseApi";
-import { toast } from "sonner";
+import { showToast } from "@/lib/toast";
 
 const Messages = () => {
   const [selectedConversation, setSelectedConversation] = useState(null);
@@ -110,7 +110,7 @@ const Messages = () => {
 
   const handleSendDirectMessage = async () => {
     if (!messageData.studentId || !messageData.message.trim()) {
-      toast.error("Please select a student and enter a message");
+      showToast.error("Please select a student and enter a message", { showCancel: true });
       return;
     }
 
@@ -121,18 +121,18 @@ const Messages = () => {
         subject: messageData.subject
       }).unwrap();
       
-      toast.success("Message sent successfully!");
+              showToast.success("Message sent successfully!", { showCancel: true });
       setMessageData({ studentId: '', message: '', subject: '' });
       setIsMessageOpen(false);
       refetchMessages();
     } catch (error) {
-      toast.error("Failed to send message");
+              showToast.error("Failed to send message", { showCancel: true });
     }
   };
 
   const handleSendAnnouncement = async () => {
     if (!announcementData.title.trim() || !announcementData.message.trim()) {
-      toast.error("Please enter both title and message");
+      showToast.error("Please enter both title and message", { showCancel: true });
       return;
     }
 
@@ -143,11 +143,11 @@ const Messages = () => {
         courseId: announcementData.courseId === 'all' ? null : announcementData.courseId
       }).unwrap();
       
-      toast.success(`Announcement sent to ${result.recipients} students!`);
+              showToast.success(`Announcement sent to ${result.recipients} students!`, { showCancel: true });
       setAnnouncementData({ title: '', message: '', courseId: 'all' });
       setIsAnnouncementOpen(false);
     } catch (error) {
-      toast.error("Failed to send announcement");
+              showToast.error("Failed to send announcement", { showCancel: true });
     }
   };
 
@@ -155,7 +155,7 @@ const Messages = () => {
     if (newMessage.trim() && selectedConversation) {
       // This would integrate with the messaging system
       console.log('Sending reply:', newMessage);
-      toast.success("Reply sent!");
+              showToast.success("Reply sent!", { showCancel: true });
       setNewMessage('');
     }
   };

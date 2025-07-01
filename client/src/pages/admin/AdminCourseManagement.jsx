@@ -51,7 +51,7 @@ import {
   TrendingUp,
   ExternalLink
 } from "lucide-react";
-import { toast } from "sonner";
+import { showToast } from "@/lib/toast";
 
 const AdminCourseManagement = () => {
   const [page, setPage] = useState(1);
@@ -90,10 +90,10 @@ const AdminCourseManagement = () => {
   const handleToggleStatus = async (courseId) => {
     try {
       await toggleCourseStatus(courseId).unwrap();
-      toast.success("Course status updated successfully");
+              showToast.success("Course status updated successfully", { showCancel: true });
       refetch();
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to update course status");
+              showToast.error(error?.data?.message || "Failed to update course status", { showCancel: true });
     }
   };
 
@@ -102,12 +102,12 @@ const AdminCourseManagement = () => {
     
     try {
       await deleteCourse(selectedCourse._id).unwrap();
-      toast.success("Course deleted successfully");
+              showToast.success("Course deleted successfully", { showCancel: true });
       setShowDeleteDialog(false);
       setSelectedCourse(null);
       refetch();
     } catch (error) {
-      toast.error(error?.data?.message || "Failed to delete course");
+              showToast.error(error?.data?.message || "Failed to delete course", { showCancel: true });
     }
   };
 

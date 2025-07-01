@@ -8,7 +8,7 @@ import {
 import { Loader2, BookOpen } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { toast } from "sonner";
+import { showToast } from "@/lib/toast";
 import Lecture from "./Lecture";
 
 const CreateLecture = () => {
@@ -39,7 +39,7 @@ const CreateLecture = () => {
     
     const response = await createLecture(lectureData);
     if (response.data) {
-      toast.success(response.data.message);
+              showToast.success(response.data.message, { showCancel: true });
       // Reset form
       setLectureTitle("");
       setUploadVideInfo(null);
@@ -51,13 +51,13 @@ const CreateLecture = () => {
   useEffect(() => {
     if (isSuccess) {
       refetch();
-      toast.success(data.message || "📚 Lecture created successfully!", {
+      showToast.success(data.message || "📚 Lecture created successfully!", {
         description: "Your new lecture has been added to the course.",
         duration: 3000,
       });
     }
     if (error) {
-      toast.error("❌ " + (error.data.message || "Failed to create lecture"), {
+      showToast.error("❌ " + (error.data.message || "Failed to create lecture"), {
         description: "Please check your information and try again.",
         duration: 4000,
       });

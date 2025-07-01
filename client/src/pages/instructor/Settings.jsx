@@ -36,7 +36,7 @@ import {
   useUpdateInstructorProfileMutation 
 } from "@/features/api/instructorApi";
 import { useCreateNotificationMutation } from "@/features/api/notificationApi";
-import { toast } from "sonner";
+import { showToast } from "@/lib/toast";
 
 const Settings = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -83,10 +83,10 @@ const Settings = () => {
     try {
       await updateProfile(profileData).unwrap();
       setIsEditing(false);
-      toast.success("Profile updated successfully!");
+              showToast.success("Profile updated successfully!", { showCancel: true });
       refetchProfile();
     } catch (error) {
-      toast.error("Failed to update profile");
+              showToast.error("Failed to update profile", { showCancel: true });
     }
   };
 
@@ -118,9 +118,9 @@ const Settings = () => {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
-      toast.success("Test notification sent! Check your notification bell.");
+              showToast.success("Test notification sent! Check your notification bell.", { showCancel: true });
     } catch (error) {
-      toast.error("Failed to send test notification");
+              showToast.error("Failed to send test notification", { showCancel: true });
     }
   };
 

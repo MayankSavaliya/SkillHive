@@ -180,9 +180,6 @@ const AdminDashboard = () => {
             <div className="text-2xl font-bold text-green-600">
               {formatCurrency(revenueData?.analytics?.totalRevenue || 0)}
             </div>
-            <p className="text-xs text-muted-foreground">
-              From completed payments only
-            </p>
           </CardContent>
         </Card>
       </div>

@@ -19,7 +19,7 @@ import {
   useDeleteNotificationMutation,
 } from '@/features/api/notificationApi';
 import { markAsRead, markAllAsRead } from '@/features/notificationSlice';
-import { toast } from 'sonner';
+import { showToast } from '@/lib/toast';
 import useSocket from '@/hooks/useSocket';
 
 const NotificationBell = () => {
@@ -63,7 +63,7 @@ const NotificationBell = () => {
     if (socket) {
       const handleNewNotification = () => {
         refetchUnreadCount();
-        toast.success('New notification received!');
+        showToast.success('New notification received!', { showCancel: true });
       };
 
       socket.on('newNotification', handleNewNotification);
@@ -97,9 +97,9 @@ const NotificationBell = () => {
     try {
       await markAllAsRead().unwrap();
       refetchUnreadCount();
-      toast.success('All notifications marked as read');
+      showToast.success('All notifications marked as read', { showCancel: true });
     } catch (error) {
-      toast.error('Failed to mark all as read');
+      showToast.error('Failed to mark all as read', { showCancel: true });
     }
   };
 
@@ -108,9 +108,9 @@ const NotificationBell = () => {
     try {
       await deleteNotification(notificationId).unwrap();
       refetchUnreadCount();
-      toast.success('Notification deleted');
+      showToast.success('Notification deleted', { showCancel: true });
     } catch (error) {
-      toast.error('Failed to delete notification');
+      showToast.error('Failed to delete notification', { showCancel: true });
     }
   };
 

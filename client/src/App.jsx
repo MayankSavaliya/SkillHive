@@ -21,7 +21,6 @@ import Messages from "./pages/instructor/Messages";
 import Settings from "./pages/instructor/Settings";
 import CourseDetail from "./pages/student/CourseDetail";
 import CourseProgress from "./pages/student/CourseProgress";
-import SearchPage from "./pages/student/SearchPage";
 import RouteErrorBoundary from "./components/RouteErrorBoundary";
 
 import {
@@ -91,14 +90,7 @@ const appRouter = createBrowserRouter(
           </ProtectedRoute>
         ),
       },
-      {
-        path: "course/search",
-        element: (
-          <ProtectedRoute>
-            <SearchPage />
-          </ProtectedRoute>
-        ),
-      },
+
       {
         path: "notifications",
         element: (
@@ -234,7 +226,7 @@ function App() {
     <main>
       <NotificationProvider>
         <RouterProvider router={appRouter} />
-        <Toaster position="top-right" />
+        <Toaster position="bottom-right" />
       </NotificationProvider>
     </main>
   );
