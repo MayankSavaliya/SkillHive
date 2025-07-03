@@ -618,6 +618,7 @@ const CourseProgress = () => {
                             </Badge>
                           )}
                         </div>
+
                       </div>
                     );
                   })}

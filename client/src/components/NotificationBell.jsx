@@ -33,10 +33,12 @@ const NotificationBell = () => {
   const { 
     data: unreadCountData, 
     error: unreadCountError,
-    refetch: refetchUnreadCount 
+    refetch: refetchUnreadCount,
+    isLoading: isUnreadCountLoading 
   } = useGetUnreadCountQuery(undefined, {
     refetchOnMountOrArgChange: true,
     pollingInterval: 30000, // Poll every 30 seconds
+    skip: !user, // Skip if no user is logged in
   });
 
   const { 
@@ -58,6 +60,13 @@ const NotificationBell = () => {
   const unreadCount = unreadCountData || 0;
   const notifications = notificationsData?.notifications || [];
 
+  // Log errors for debugging
+  useEffect(() => {
+    if (unreadCountError) {
+      console.error('Failed to fetch unread count:', unreadCountError);
+    }
+  }, [unreadCountError]);
+
   // Handle real-time notifications
   useEffect(() => {
     if (socket) {
@@ -66,8 +75,23 @@ const NotificationBell = () => {
         showToast.success('New notification received!', { showCancel: true });
       };
 
+      const handleNotificationRead = () => {
+        refetchUnreadCount();
+      };
+
+      const handleAllNotificationsRead = () => {
+        refetchUnreadCount();
+      };
+
       socket.on('newNotification', handleNewNotification);
-      return () => socket.off('newNotification', handleNewNotification);
+      socket.on('notification_read', handleNotificationRead);
+      socket.on('all_notifications_read', handleAllNotificationsRead);
+      
+      return () => {
+        socket.off('newNotification', handleNewNotification);
+        socket.off('notification_read', handleNotificationRead);
+        socket.off('all_notifications_read', handleAllNotificationsRead);
+      };
     }
   }, [socket, refetchUnreadCount]);
 
@@ -192,13 +216,19 @@ const NotificationBell = () => {
         <Button
           variant="ghost"
           size="icon"
-          className="relative hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+          className="relative hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors duration-200"
         >
-          <Bell className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-          {unreadCount > 0 && (
+          <Bell className={`h-5 w-5 transition-colors duration-200 ${
+            unreadCount > 0 
+              ? 'text-blue-600 dark:text-blue-400' 
+              : 'text-gray-600 dark:text-gray-400'
+          }`} />
+          {isUnreadCountLoading && !unreadCountData ? (
+            <div className="absolute -top-1 -right-1 h-3 w-3 bg-gray-400 rounded-full animate-pulse" />
+          ) : unreadCount > 0 && (
             <Badge 
               variant="destructive" 
-              className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs"
+              className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs font-semibold shadow-lg animate-in zoom-in-50 duration-200"
             >
               {unreadCount > 99 ? '99+' : unreadCount}
             </Badge>
