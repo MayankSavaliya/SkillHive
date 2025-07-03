@@ -29,6 +29,7 @@ import React, { useState, useEffect } from "react";
 import Course from "./Course";
 import { useGetPublishedCourseQuery, useGetSearchCourseQuery } from "@/features/api/courseApi";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 const categories = [
   { id: "all", label: "All Courses" },
@@ -146,9 +147,30 @@ const Courses = () => {
   const filteredCourses = getFilteredCourses();
   const hasActiveFilters = selectedCategory !== "all" || priceFilter || searchQuery;
  
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 100 } },
+  };
+ 
   if(isError) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center"
+      >
         <div className="text-center bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg max-w-md">
           <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
             <X className="w-8 h-8 text-red-600 dark:text-red-400" />
@@ -163,7 +185,7 @@ const Courses = () => {
             Try Again
           </Button>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
@@ -171,7 +193,12 @@ const Courses = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Hero Section */}
       <div className="bg-white dark:bg-gray-800">
-        <div className="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8 text-center">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8 text-center"
+        >
           <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
             <span className="block">Unlock Your Potential</span>
             <span className="block text-blue-600 dark:text-blue-500">Start Learning Today</span>
@@ -187,7 +214,7 @@ const Courses = () => {
               Become an Instructor
             </Button>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Main Layout */}
@@ -276,7 +303,15 @@ const Courses = () => {
         {/* Main Content Layout */}
         <div className="flex gap-8">
           {/* Sidebar Filter Panel */}
-          <div className={`w-64 flex-shrink-0 transition-all duration-300 ease-in-out ${showFilters ? 'block' : 'hidden'}`}>
+          <AnimatePresence>
+            {showFilters && (
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="w-64 flex-shrink-0"
+              >
             <aside className="sticky top-24">
               <div className="h-full overflow-y-auto p-6 lg:p-0 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
                 <div className="p-6">
@@ -340,7 +375,9 @@ const Courses = () => {
                 </div>
               </div>
             </aside>
-          </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Main Content */}
           <div className="flex-1 min-w-0">
@@ -381,7 +418,11 @@ const Courses = () => {
                 ))}
               </div>
             ) : filteredCourses && filteredCourses.length > 0 ? (
-              <div className={`${
+              <motion.div 
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className={`${
                 viewMode === "grid" 
                   ? "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8" 
                   : "space-y-6"
@@ -391,11 +432,17 @@ const Courses = () => {
                     key={course._id} 
                     course={course}
                     viewMode={viewMode}
+                    variants={itemVariants}
                   />
                 ))}
-              </div>
+              </motion.div>
             ) : (
-              <div className="text-center py-16">
+              <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="text-center py-16"
+              >
                 <div className="max-w-md mx-auto">
                   <div className="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
                     <BookOpen className="w-12 h-12 text-gray-400" />
@@ -410,7 +457,7 @@ const Courses = () => {
                     Clear all filters
                   </Button>
                 </div>
-              </div>
+              </motion.div>
             )}
           </div>
         </div>
