@@ -1,4 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
+import streamifier from "streamifier";
 import dotenv from "dotenv";
 dotenv.config({});
 
@@ -8,14 +9,26 @@ cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
 });
 
-export const uploadMedia = async (file) => {
+export const uploadMedia = async (buffer) => {
   try {
-    const uploadResponse = await cloudinary.uploader.upload(file, {
-      resource_type: "auto",
+    return new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: "auto",
+        },
+        (error, result) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result);
+          }
+        }
+      );
+      streamifier.createReadStream(buffer).pipe(uploadStream);
     });
-    return uploadResponse;
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 export const deleteMediaFromCloudinary = async (publicId) => {

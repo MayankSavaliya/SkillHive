@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "node -r dotenv/config --experimental-json-modules index.js",
+    "dev": "node index.js",
     "start": "node index.js",
     "dev:stripe": "concurrently \"npm run dev\" \"stripe listen --forward-to http://localhost:8080/purchase/webhook\""
   },
@@ -22,7 +22,6 @@
     "mongoose": "^8.8.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.8",
-    "nodemon": "^3.1.10",
     "socket.io": "^4.7.4",
     "streamifier": "^0.1.1",
     "stripe": "^17.3.1"
