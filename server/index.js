@@ -32,7 +32,7 @@ socketManager.initialize(server);
 app.use(express.json());
 
 app.use(cors({
-    origin:["http://localhost:5173","https://skillhive-frontend.vercel.app"],
+    origin:["http://localhost:5173","https://skillhive-frontend.vercel.app", process.env.CLIENT_URL],
     credentials:true
 }));
  
