@@ -40,8 +40,8 @@ export const createCheckoutSession = async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `http://localhost:5173/course-progress/${courseId}`, // once payment successful redirect to course progress page
-      cancel_url: `http://localhost:5173/course-detail/${courseId}`,
+      success_url: `/course-detail/${courseId}`, 
+      cancel_url: `/course-detail/${courseId}`,  //is this work or need to add prefix 
       metadata: {
         courseId: courseId.toString(),
         userId: userId.toString(),

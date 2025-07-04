@@ -8,13 +8,12 @@ const lectureSchema = new mongoose.Schema({
   videoUrl: { type: String },
   publicId: { type: String },
   isPreviewFree: { type: Boolean, default: false },
-  // Essential fields only
   description: {
     type: String,
     default: ""
   },
   duration: {
-    type: String, // Store as "5:30" format (minutes:seconds)
+    type: String, // "5:30" format (minutes:seconds)
     default: "0:00"
   },
   lectureIndex: {

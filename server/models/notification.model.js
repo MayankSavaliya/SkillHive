@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 const notificationSchema = new mongoose.Schema({
-  // User who will receive the notification
   recipient: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -9,7 +8,6 @@ const notificationSchema = new mongoose.Schema({
     index: true
   },
   
-  // User who sent the notification (optional)
   sender: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -23,33 +21,28 @@ const notificationSchema = new mongoose.Schema({
     maxlength: 200
   },
 
-  // Notification message/content
   message: {
     type: String,
     required: true,
     maxlength: 1000
   },
 
-  // Additional data for the notification (optional)
   data: {
     type: mongoose.Schema.Types.Mixed,
     default: null
   },
 
-  // Read status
   isRead: {
     type: Boolean,
     default: false,
     index: true
   },
 
-  // Action URL for clickable notifications (optional)
   actionUrl: {
     type: String,
     default: null
   },
 
-  // Expiry date for notifications (optional)
   expiresAt: {
     type: Date,
     default: function() {
@@ -58,7 +51,6 @@ const notificationSchema = new mongoose.Schema({
     }
   },
 
-  // Read timestamp
   readAt: {
     type: Date,
     default: null
