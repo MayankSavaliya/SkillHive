@@ -32,18 +32,10 @@ socketManager.initialize(server);
 app.use(express.json());
 
 app.use(cors({
-    origin: [
-        process.env.CLIENT_URL,
-        "http://localhost:5173",
-        "https://localhost:5173",
-        "https://www.skill-hive.live",
-        "https://skill-hive.live"
-    ],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    optionsSuccessStatus: 200
+    origin:["http://localhost:5173","https://skillhive-frontend.vercel.app"],
+    credentials:true
 }));
+ 
 
 // apis
 app.get("/", (req, res)=> {
