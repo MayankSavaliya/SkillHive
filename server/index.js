@@ -32,10 +32,10 @@ socketManager.initialize(server);
 app.use(express.json());
 
 app.use(cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin:[ process.env.CLIENT_URL , "http://localhost:5173"],
     credentials:true
 }));
- 
+
 // apis
 app.get("/", (req, res)=> {
     res.send("SkillHive Server is running");
