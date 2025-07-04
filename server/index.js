@@ -32,13 +32,25 @@ socketManager.initialize(server);
 app.use(express.json());
 
 app.use(cors({
-    origin:[ process.env.CLIENT_URL , "http://localhost:5173"],
-    credentials:true
+    origin: [
+        process.env.CLIENT_URL,
+        "http://localhost:5173",
+        "https://localhost:5173",
+        "https://www.skill-hive.live",
+        "https://skill-hive.live"
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    optionsSuccessStatus: 200
 }));
 
 // apis
 app.get("/", (req, res)=> {
     res.send("SkillHive Server is running");
+});
+app.get("/health", (req, res) => {
+    res.status(200).json({ message: "Server is healthy" });
 });
 app.use("/media", mediaRoute);
 app.use("/user", userRoute);
