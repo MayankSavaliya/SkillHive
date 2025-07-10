@@ -176,7 +176,7 @@ export const getCourseDetailWithPurchaseStatus = async (req, res) => {
     const { courseId } = req.params;
     const userId = req.user._id;
 
-    const course = await Course.findById(courseId).populate('creator', 'name');
+    const course = await Course.findById(courseId).populate('creator', 'name').populate('lectures');
     if (!course) {
       return res.status(404).json({
         success: false,
