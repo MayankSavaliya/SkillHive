@@ -429,17 +429,51 @@ const CourseDetail = () => {
               {/* Video Preview */}
               <Card className="overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-lg">
                 <div className="aspect-video bg-black relative group">
-                  <ReactPlayer
-                    width="100%"
-                    height="100%"
-                    url={course.lectures[0]?.videoUrl}
-                    controls={true}
-                    light={true}
-                    playing={false}
-                  />
-                  <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <PlayCircle className="h-12 w-12 text-white" />
-                  </div>
+                  {course.lectures && course.lectures.length > 0 && course.lectures[0]?.videoUrl ? (
+                    <ReactPlayer
+                      width="100%"
+                      height="100%"
+                      url={course.lectures[0].videoUrl}
+                      controls={true}
+                      light={false}
+                      playing={false}
+                      playsinline={true}
+                      pip={true}
+                      stopOnUnmount={false}
+                      config={{
+                        file: {
+                          attributes: {
+                            crossOrigin: 'anonymous',
+                            controlsList: 'nodownload',
+                            preload: 'metadata'
+                          },
+                          forceVideo: true
+                        },
+                        youtube: {
+                          playerVars: { showinfo: 1 }
+                        },
+                        vimeo: {
+                          playerOptions: { byline: false }
+                        }
+                      }}
+                      onError={(error) => {
+                        console.error('Video playback error:', error);
+                      }}
+                      onReady={() => {
+                        console.log('Video is ready to play');
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex flex-col items-center justify-center text-white">
+                      <PlayCircle className="h-16 w-16 text-gray-400 mb-4" />
+                      <h3 className="text-xl font-semibold mb-2">Preview Not Available</h3>
+                      <p className="text-gray-300 text-center text-sm px-4">
+                        {course.lectures && course.lectures.length > 0 
+                          ? "Video is being processed..." 
+                          : "No lectures available yet"}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </Card>
 

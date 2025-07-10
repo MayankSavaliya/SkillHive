@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCreateCourseMutation } from "@/features/api/courseApi";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "@/lib/toast";
@@ -48,13 +48,23 @@ const AddCourse = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Create New Course
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Add some basic course details to get started. You can edit these later.
-          </p>
+        <div className="flex items-center gap-4 mb-8">
+          <Button 
+            size="icon" 
+            variant="outline" 
+            onClick={() => navigate("/instructor/course")}
+            className="rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600 transition-colors duration-200"
+          >
+            <ArrowLeft size={16} />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Create New Course
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">
+              Add some basic course details to get started. You can edit these later.
+            </p>
+          </div>
         </div>
 
         {/* Form Card */}
@@ -69,7 +79,7 @@ const AddCourse = () => {
                 value={courseTitle}
                 onChange={(e) => setCourseTitle(e.target.value)}
                 placeholder="e.g., Complete React Development Course"
-                className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary"
+                className="mt-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             
@@ -78,7 +88,7 @@ const AddCourse = () => {
                 Category *
               </Label>
               <Select onValueChange={getSelectedCategory}>
-                <SelectTrigger className="w-full mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary">
+                <SelectTrigger className="w-full mt-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                   <SelectValue placeholder="Select a category for your course" />
                 </SelectTrigger>
                 <SelectContent>
@@ -114,7 +124,7 @@ const AddCourse = () => {
               <Button 
                 disabled={isLoading || !courseTitle.trim() || !category} 
                 onClick={createCourseHandler}
-                className="bg-primary hover:bg-primary/90 min-w-[120px]"
+                className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 min-w-[140px]"
               >
                 {isLoading ? (
                   <>
@@ -122,7 +132,7 @@ const AddCourse = () => {
                     Creating...
                   </>
                 ) : (
-                  "Create Course"
+                  "✨ Create Course"
                 )}
               </Button>
             </div>

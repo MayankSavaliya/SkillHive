@@ -39,7 +39,7 @@ const CreateLecture = () => {
     
     const response = await createLecture(lectureData);
     if (response.data) {
-              showToast.success(response.data.message, { showCancel: true });
+              showToast.success(response.data.message);
       // Reset form
       setLectureTitle("");
       setUploadVideInfo(null);
@@ -95,7 +95,7 @@ const CreateLecture = () => {
                 value={lectureTitle}
                 onChange={(e) => setLectureTitle(e.target.value)}
                 placeholder="e.g., Introduction to React Components"
-                className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary"
+                className="mt-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             
@@ -110,7 +110,7 @@ const CreateLecture = () => {
               <Button 
                 disabled={isLoading || !lectureTitle.trim()} 
                 onClick={createLectureHandler}
-                className="bg-primary hover:bg-primary/90 min-w-[140px]"
+                className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 min-w-[140px]"
               >
                 {isLoading ? (
                   <>
@@ -118,7 +118,7 @@ const CreateLecture = () => {
                     Creating...
                   </>
                 ) : (
-                  "📚 Create Lecture"
+                  "✨ Create Lecture"
                 )}
               </Button>
             </div>

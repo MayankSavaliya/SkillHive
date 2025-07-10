@@ -19,8 +19,7 @@ const EditCourse = () => {
           </div>
           <Link to="lecture">
             <Button 
-              variant="outline"
-              className="hover:bg-primary hover:text-white border-primary text-primary transition-colors duration-200"
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
             >
               📚 Manage Lectures
             </Button>

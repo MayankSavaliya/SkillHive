@@ -21,7 +21,7 @@ import { API_ENDPOINTS } from "@/config/api";
 
 const LectureTab = () => {
   const [lectureTitle, setLectureTitle] = useState("");
-  const [uploadVideInfo, setUploadVideoInfo] = useState(null);
+  const [videoInfo, setVideoInfo] = useState(null);
   const [isFree, setIsFree] = useState(false);
   const [mediaProgress, setMediaProgress] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -44,13 +44,13 @@ const LectureTab = () => {
       setLectureIndex(lecture.lectureIndex || 1);
       // Check if lecture has videoUrl and publicId
       if(lecture.videoUrl && lecture.publicId){
-        setUploadVideoInfo({
+        setVideoInfo({
           videoUrl: lecture.videoUrl,
           publicId: lecture.publicId
         });
       }
     }
-  },[lecture])
+  },[lecture]);
 
   const [edtiLecture, { data, isLoading, error, isSuccess }] =
     useEditLectureMutation();
@@ -71,7 +71,7 @@ const LectureTab = () => {
 
         if (res.data.success) {
   
-          setUploadVideoInfo({
+          setVideoInfo({
             videoUrl: res.data.data.secure_url || res.data.data.url,
             publicId: res.data.data.public_id,
           });
@@ -96,8 +96,8 @@ const LectureTab = () => {
   const editLectureHandler = async () => {
     const lectureData = { 
       lectureTitle, 
-      uploadVideInfo, 
-      isFree, 
+      videoInfo, 
+      isFree: isFree, 
       description,
       duration,
       lectureIndex,
@@ -107,7 +107,7 @@ const LectureTab = () => {
     
     const response = await edtiLecture(lectureData);
     if (response.data) {
-              showToast.success(response.data.message, { showCancel: true });
+              showToast.success(response.data.message);
     }
   };
 
@@ -140,10 +140,10 @@ const LectureTab = () => {
   },[removeSuccess])
 
   return (
-    <Card className="border-gray-200 dark:border-gray-700 shadow-sm">
+    <Card className="border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
       <CardHeader className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-          <div>
+          <div className="min-w-0 flex-1">
             <CardTitle className="text-xl text-gray-900 dark:text-white">
               Edit Lecture Content
             </CardTitle>
@@ -155,7 +155,7 @@ const LectureTab = () => {
             disabled={removeLoading} 
             variant="destructive" 
             onClick={removeLectureHandler}
-            className="min-w-[140px]"
+            className="min-w-[140px] shrink-0"
           >
             {removeLoading ? (
               <>
@@ -168,8 +168,8 @@ const LectureTab = () => {
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="p-6">
-        <div className="space-y-6">
+      <CardContent className="p-6 overflow-x-hidden">
+        <div className="space-y-8">
           {/* Lecture Title */}
           <div>
             <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -180,7 +180,7 @@ const LectureTab = () => {
               onChange={(e) => setLectureTitle(e.target.value)}
               type="text"
               placeholder="e.g., Introduction to JavaScript Fundamentals"
-              className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary"
+              className="mt-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
@@ -193,12 +193,12 @@ const LectureTab = () => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Brief description of what students will learn in this lecture..."
-              className="mt-1.5 min-h-[100px] focus:ring-2 focus:ring-primary focus:border-primary"
+              className="mt-1.5 min-h-[100px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
             />
           </div>
 
           {/* Duration and Lecture Index */}
-          <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
+          <div className="grid gap-6 md:grid-cols-2">
             <div>
               <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
                 Duration (mm:ss)
@@ -209,7 +209,7 @@ const LectureTab = () => {
                 type="text"
                 placeholder="10:30"
                 pattern="[0-9]+:[0-9]{2}"
-                className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary"
+                className="mt-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Format: minutes:seconds (e.g., 10:30 for 10 minutes 30 seconds)
@@ -226,7 +226,7 @@ const LectureTab = () => {
                 type="number"
                 min="1"
                 placeholder="1"
-                className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary"
+                className="mt-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Order in which this lecture appears in the course
@@ -243,7 +243,7 @@ const LectureTab = () => {
               type="file"
               accept="video/*"
               onChange={fileChangeHandler}
-              className="mt-1.5 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-white hover:file:bg-primary/90"
+              className="mt-1.5 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-600 file:text-white hover:file:bg-blue-700"
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Supported formats: MP4, MOV, AVI. Maximum file size: 500MB
@@ -258,7 +258,7 @@ const LectureTab = () => {
               id="preview-mode" 
               className="data-[state=checked]:bg-green-500"
             />
-            <div>
+            <div className="min-w-0 flex-1">
               <Label htmlFor="preview-mode" className="text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer">
                 Free Preview
               </Label>
@@ -282,17 +282,19 @@ const LectureTab = () => {
           )}
 
           {/* Video Preview */}
-          {uploadVideInfo?.videoUrl && (
+          {videoInfo?.videoUrl && (
             <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
               <Label className="text-sm font-medium text-green-900 dark:text-green-300 mb-3 block">
                 ✅ Video Preview
               </Label>
-              <video 
-                src={uploadVideInfo.videoUrl} 
-                controls 
-                className="w-full max-w-2xl h-auto rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm"
-                preload="metadata"
-              />
+              <div className="w-full max-w-2xl">
+                <video 
+                  src={videoInfo.videoUrl} 
+                  controls 
+                  className="w-full h-auto rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm"
+                  preload="metadata"
+                />
+              </div>
             </div>
           )}
 
@@ -301,7 +303,7 @@ const LectureTab = () => {
             <Button 
               disabled={isLoading || !lectureTitle.trim()} 
               onClick={editLectureHandler}
-              className="bg-primary hover:bg-primary/90 min-w-[140px]"
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 min-w-[140px]"
             >
               {isLoading ? (
                 <>

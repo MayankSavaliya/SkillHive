@@ -33,13 +33,19 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const categories = [
   { id: "all", label: "All Courses" },
-  { id: "web-development", label: "Web Development" },
-  { id: "data-science", label: "Data Science" },
-  { id: "design", label: "Design" },
-  { id: "marketing", label: "Marketing" },
-  { id: "business", label: "Business" },
-  { id: "mobile-development", label: "Mobile Development" },
-  { id: "programming", label: "Programming" },
+  { id: "Web Development", label: "🌐 Web Development" },
+  { id: "Frontend Development", label: "⚛️ Frontend Development" },
+  { id: "Backend Development", label: "🔧 Backend Development" },
+  { id: "Full Stack Development", label: "🚀 Full Stack Development" },
+  { id: "Mobile Development", label: "📱 Mobile Development" },
+  { id: "Data Science", label: "📊 Data Science" },
+  { id: "Machine Learning", label: "🤖 Machine Learning" },
+  { id: "DevOps & Cloud", label: "⚙️ DevOps & Cloud" },
+  { id: "UI/UX Design", label: "🎨 UI/UX Design" },
+  { id: "Database Management", label: "🗄️ Database Management" },
+  { id: "Cybersecurity", label: "🔒 Cybersecurity" },
+  { id: "Programming Languages", label: "💻 Programming Languages" },
+  { id: "Business & Management", label: "💼 Business & Management" },
 ];
 
 const sortOptions = [

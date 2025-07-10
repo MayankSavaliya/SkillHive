@@ -37,7 +37,8 @@ const CourseTab = () => {
     description: "",
     category: "",
     courseLevel: "",
-    coursePrice: "",
+    originalPrice: "",
+    discountPercentage: "",
     courseThumbnail: "",
     whatYouWillLearn: "",
     requirements: "",
@@ -54,13 +55,15 @@ const CourseTab = () => {
   useEffect(() => {
     if (courseByIdData?.course) { 
         const course = courseByIdData?.course;
+
       setInput({
-        courseTitle: course.courseTitle,
-        subTitle: course.subTitle,
-        description: course.description,
-        category: course.category,
-        courseLevel: course.courseLevel,
-        coursePrice: course.coursePrice,
+        courseTitle: course.courseTitle || "",
+        subTitle: course.subTitle || "",
+        description: course.description || "",
+        category: course.category || "",
+        courseLevel: course.courseLevel || "",
+        originalPrice: course.originalPrice || "",
+        discountPercentage: course.discountPercentage || "",
         courseThumbnail: "",
         whatYouWillLearn: course.whatYouWillLearn?.join('\n') || "",
         requirements: course.requirements?.join('\n') || "",
@@ -68,6 +71,8 @@ const CourseTab = () => {
       });
     }
   }, [courseByIdData]);
+
+
 
   const [previewThumbnail, setPreviewThumbnail] = useState("");
   const navigate = useNavigate();
@@ -89,6 +94,14 @@ const CourseTab = () => {
   const selectLanguage = (value) => {
     setInput({ ...input, language: value });
   };
+
+  // Calculate final price based on original price and discount
+  const calculateFinalPrice = () => {
+    const original = parseFloat(input.originalPrice) || 0;
+    const discount = parseFloat(input.discountPercentage) || 0;
+    const finalPrice = original - (original * discount / 100);
+    return Math.max(0, finalPrice);
+  };
   // get file
   const selectThumbnail = (e) => {
     const file = e.target.files?.[0];
@@ -107,7 +120,9 @@ const CourseTab = () => {
     formData.append("description", input.description);
     formData.append("category", input.category);
     formData.append("courseLevel", input.courseLevel);
-    formData.append("coursePrice", input.coursePrice);
+    formData.append("coursePrice", calculateFinalPrice().toString());
+    formData.append("originalPrice", input.originalPrice);
+    formData.append("discountPercentage", input.discountPercentage);
     formData.append("courseThumbnail", input.courseThumbnail);
     formData.append("whatYouWillLearn", JSON.stringify(input.whatYouWillLearn.split('\n').filter(item => item.trim())));
     formData.append("requirements", JSON.stringify(input.requirements.split('\n').filter(item => item.trim())));
@@ -121,10 +136,10 @@ const CourseTab = () => {
       const response = await publishCourse({ courseId, query: action });
       if (response.data) {
         refetch();
-        showToast.success(response.data.message, { showCancel: true });
+        showToast.success(response.data.message);
       }
     } catch (error) {
-              showToast.error("Failed to update course status", { showCancel: true });
+              showToast.error("Failed to update course status");
     }
   };
 
@@ -133,7 +148,7 @@ const CourseTab = () => {
     if (!courseByIdData?.course) return false;
     const course = courseByIdData.course;
     return course.courseTitle && course.subTitle && course.description && 
-           course.category && course.courseLevel && course.coursePrice && 
+           course.category && course.courseLevel && course.originalPrice && 
            course.lectures.length > 0;
   }
 
@@ -152,13 +167,28 @@ const CourseTab = () => {
     }
   }, [isSuccess, error]);
 
-  if(courseByIdLoading) return <h1>Loading...</h1>
+  if(courseByIdLoading) return (
+    <div className="flex items-center justify-center p-8">
+      <div className="text-center">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
+        <p className="text-gray-600 dark:text-gray-400">Loading course data...</p>
+      </div>
+    </div>
+  );
+
+  if(!courseByIdData?.course) return (
+    <div className="flex items-center justify-center p-8">
+      <div className="text-center">
+        <p className="text-red-600 dark:text-red-400">Course not found</p>
+      </div>
+    </div>
+  );
  
   return (
-    <Card className="border-gray-200 dark:border-gray-700 shadow-sm">
+    <Card className="border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
       <CardHeader className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-          <div>
+          <div className="min-w-0 flex-1">
             <CardTitle className="text-xl text-gray-900 dark:text-white">
               Course Information
             </CardTitle>
@@ -166,7 +196,7 @@ const CourseTab = () => {
               Update your course details and settings. All fields marked with * are required.
             </CardDescription>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 shrink-0">
             <Button 
               disabled={courseByIdLoading || !courseByIdData?.course || isPublishing || (!courseByIdData?.course.isPublished && !isCourseReadyForPublishing())} 
               variant={courseByIdData?.course.isPublished ? "destructive" : "default"}
@@ -190,15 +220,15 @@ const CourseTab = () => {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-6">
-        <div className="grid gap-6 lg:gap-8">
+      <CardContent className="p-6 overflow-x-hidden">
+        <div className="grid gap-8">
           {/* Basic Information Section */}
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
               Basic Information
             </h3>
             
-            <div className="grid gap-4 lg:gap-6">
+            <div className="grid gap-6">
               <div>
                 <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   Course Title *
@@ -209,7 +239,7 @@ const CourseTab = () => {
                   value={input.courseTitle}
                   onChange={changeEventHandler}
                   placeholder="e.g., Complete Full Stack Development Course"
-                  className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary"
+                  className="mt-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               
@@ -223,7 +253,7 @@ const CourseTab = () => {
                   value={input.subTitle}
                   onChange={changeEventHandler}
                   placeholder="e.g., Master modern web development from beginner to expert level"
-                  className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary"
+                  className="mt-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               
@@ -244,16 +274,17 @@ const CourseTab = () => {
               Course Settings
             </h3>
             
-            <div className="grid gap-4 lg:grid-cols-4 lg:gap-6">
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
               <div>
                 <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   Category *
                 </Label>
                 <Select
-                  defaultValue={input.category}
+                  value={input.category}
                   onValueChange={selectCategory}
+                  key={`category-${input.category}`}
                 >
-                  <SelectTrigger className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary">
+                  <SelectTrigger className="mt-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -282,10 +313,11 @@ const CourseTab = () => {
                   Difficulty Level *
                 </Label>
                 <Select
-                  defaultValue={input.courseLevel}
+                  value={input.courseLevel}
                   onValueChange={selectCourseLevel}
+                  key={`level-${input.courseLevel}`}
                 >
-                  <SelectTrigger className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary">
+                  <SelectTrigger className="mt-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <SelectValue placeholder="Select level" />
                   </SelectTrigger>
                   <SelectContent>
@@ -304,10 +336,11 @@ const CourseTab = () => {
                   Language
                 </Label>
                 <Select
-                  defaultValue={input.language}
+                  value={input.language}
                   onValueChange={selectLanguage}
+                  key={`language-${input.language}`}
                 >
-                  <SelectTrigger className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary">
+                  <SelectTrigger className="mt-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <SelectValue placeholder="Select language" />
                   </SelectTrigger>
                   <SelectContent>
@@ -332,18 +365,52 @@ const CourseTab = () => {
               
               <div>
                 <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  Price (₹) *
+                  Original Price (₹) *
                 </Label>
                 <Input
                   type="number"
-                  name="coursePrice"
-                  value={input.coursePrice}
+                  name="originalPrice"
+                  value={input.originalPrice}
                   onChange={changeEventHandler}
                   placeholder="0"
                   min="0"
-                  className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary"
+                  className="mt-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Set to 0 for free course</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Original course price</p>
+              </div>
+            </div>
+
+            {/* Pricing Section */}
+            <div className="grid gap-6 md:grid-cols-3">
+              <div>
+                <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  Discount Percentage (%)
+                </Label>
+                <Input
+                  type="number"
+                  name="discountPercentage"
+                  value={input.discountPercentage}
+                  onChange={changeEventHandler}
+                  placeholder="0"
+                  min="0"
+                  max="100"
+                  className="mt-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Discount percentage (0-100)</p>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  Final Price (₹)
+                </Label>
+                <div className="mt-1.5 p-3 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
+                  <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    ₹{calculateFinalPrice().toFixed(0)}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Auto-calculated selling price
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -354,7 +421,7 @@ const CourseTab = () => {
               Course Content Details
             </h3>
             
-            <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
+            <div className="grid gap-6 lg:grid-cols-2">
               <div>
                 <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   What You'll Learn
@@ -364,7 +431,7 @@ const CourseTab = () => {
                   value={input.whatYouWillLearn}
                   onChange={changeEventHandler}
                   placeholder="Enter learning outcomes (one per line)&#10;• Master React fundamentals&#10;• Build full-stack applications&#10;• Deploy to production"
-                  className="mt-1.5 min-h-[120px] focus:ring-2 focus:ring-primary focus:border-primary"
+                  className="mt-1.5 min-h-[120px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Enter each learning outcome on a new line
@@ -380,7 +447,7 @@ const CourseTab = () => {
                   value={input.requirements}
                   onChange={changeEventHandler}
                   placeholder="Enter course requirements (one per line)&#10;• Basic JavaScript knowledge&#10;• Computer with internet access&#10;• Willingness to learn"
-                  className="mt-1.5 min-h-[120px] focus:ring-2 focus:ring-primary focus:border-primary"
+                  className="mt-1.5 min-h-[120px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Enter each requirement on a new line
@@ -403,7 +470,7 @@ const CourseTab = () => {
                 type="file"
                 onChange={selectThumbnail}
                 accept="image/*"
-                className="mt-1.5 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-white hover:file:bg-primary/90"
+                className="mt-1.5 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-600 file:text-white hover:file:bg-blue-700"
               />
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Recommended: 1280x720px, JPG or PNG format
@@ -421,18 +488,18 @@ const CourseTab = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-between items-center pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
             <Button 
               onClick={() => navigate("/instructor/course")} 
               variant="outline"
-              className="hover:bg-gray-50 dark:hover:bg-gray-700"
+              className="w-full sm:w-auto hover:bg-gray-50 dark:hover:bg-gray-700"
             >
               ← Back to Courses
             </Button>
             <Button 
               disabled={isLoading} 
               onClick={updateCourseHandler}
-              className="bg-primary hover:bg-primary/90 min-w-[120px]"
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 min-w-[140px]"
             >
               {isLoading ? (
                 <>

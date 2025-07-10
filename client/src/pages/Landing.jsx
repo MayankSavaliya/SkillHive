@@ -72,7 +72,12 @@ const Landing = () => {
     { name: "Mobile Development", courses: "450+ courses", icon: "📱" },
     { name: "Data Science", courses: "400+ courses", icon: "📊" },
     { name: "Machine Learning", courses: "350+ courses", icon: "🤖" },
-    { name: "UI/UX Design", courses: "480+ courses", icon: "🎨" }
+    { name: "DevOps & Cloud", courses: "320+ courses", icon: "⚙️" },
+    { name: "UI/UX Design", courses: "480+ courses", icon: "🎨" },
+    { name: "Database Management", courses: "290+ courses", icon: "🗄️" },
+    { name: "Cybersecurity", courses: "270+ courses", icon: "🔒" },
+    { name: "Programming Languages", courses: "680+ courses", icon: "💻" },
+    { name: "Business & Management", courses: "520+ courses", icon: "💼" }
   ];
 
   const testimonials = [
