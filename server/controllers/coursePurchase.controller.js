@@ -40,8 +40,8 @@ export const createCheckoutSession = async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `http://localhost:5173/course-detail/${courseId}`, 
-      cancel_url: `http://localhost:5173/course-detail/${courseId}`,  //is this work or need to add prefix 
+      success_url: `https://www.skill-hive.live/course-detail/${courseId}`, 
+      cancel_url: `https://www.skill-hive.live/course-detail/${courseId}`,  
       metadata: {
         courseId: courseId.toString(),
         userId: userId.toString(),
