@@ -2,9 +2,6 @@ import {
   ChartNoAxesColumn, 
   SquareLibrary, 
   Users, 
-  MessageSquare, 
-  Settings, 
-  BarChart3,
   Calendar,
   Bell,
   HelpCircle,
@@ -13,17 +10,15 @@ import {
 import React from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-import { useGetInstructorAnalyticsQuery, useGetInstructorMessagesQuery } from "@/features/api/instructorApi";
+import { useGetInstructorAnalyticsQuery } from "@/features/api/instructorApi";
 
 const Sidebar = () => {
   const location = useLocation();
   
   // Fetch real data for sidebar stats
   const { data: analyticsData } = useGetInstructorAnalyticsQuery();
-  const { data: messagesData } = useGetInstructorMessagesQuery();
   
   const analytics = analyticsData?.analytics || {};
-  const unreadCount = messagesData?.unreadCount || 0;
   
   const sidebarItems = [
     {
@@ -46,28 +41,10 @@ const Sidebar = () => {
       badge: null
     },
     {
-      to: "analytics",
-      icon: BarChart3,
-      label: "Analytics",
-      badge: "New"
-    },
-    {
       to: "students",
       icon: Users,
       label: "Students",
       badge: analytics.totalStudents ? analytics.totalStudents.toString() : null
-    },
-    {
-      to: "messages",
-      icon: MessageSquare,
-      label: "Messages",
-      badge: unreadCount > 0 ? unreadCount.toString() : null
-    },
-    {
-      to: "settings",
-      icon: Settings,
-      label: "Profile & Settings",
-      badge: null
     }
   ];
 

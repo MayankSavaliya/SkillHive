@@ -8,7 +8,6 @@ export const getCourseProgress = async (req, res) => {
     const { courseId } = req.params;
     const userId = req.user._id;
 
-    // step-1 fetch the user course progress
     let courseProgress = await CourseProgress.findOne({
       courseId,
       userId,
@@ -22,7 +21,6 @@ export const getCourseProgress = async (req, res) => {
       });
     }
 
-    // Step-2 If no progress found, return course details with an empty progress
     if (!courseProgress) {
       return res.status(200).json({
         data: {
@@ -33,7 +31,6 @@ export const getCourseProgress = async (req, res) => {
       });
     }
 
-    // Step-3 Return the user's course progress alog with course details
     return res.status(200).json({
       data: {
         courseDetails,
@@ -46,16 +43,16 @@ export const getCourseProgress = async (req, res) => {
   }
 };
 
+// lecture progress update karva mate
 export const updateLectureProgress = async (req, res) => {
   try {
     const { courseId, lectureId } = req.params;
     const userId = req.user._id;
 
-    // fetch or create course progress
+    
     let courseProgress = await CourseProgress.findOne({ courseId, userId });
 
     if (!courseProgress) {
-      // If no progress exist, create a new record
       courseProgress = new CourseProgress({
         userId,
         courseId,
@@ -64,7 +61,6 @@ export const updateLectureProgress = async (req, res) => {
       });
     }
 
-    // find the lecture progress in the course progress
     const lectureIndex = courseProgress.lectureProgress.findIndex(
       (lecture) => lecture.lectureId === lectureId
     );
@@ -72,21 +68,17 @@ export const updateLectureProgress = async (req, res) => {
     let lectureJustCompleted = false;
 
     if (lectureIndex !== -1) {
-      // if lecture already exist, update its status
       if (!courseProgress.lectureProgress[lectureIndex].viewed) {
         courseProgress.lectureProgress[lectureIndex].viewed = true;
-        lectureJustCompleted = true;
       }
     } else {
-      // Add new lecture progress
       courseProgress.lectureProgress.push({
         lectureId,
         viewed: true,
       });
-      lectureJustCompleted = true;
     }
+    lectureJustCompleted = true;
 
-    // if all lecture is complete
     const lectureProgressLength = courseProgress.lectureProgress.filter(
       (lectureProg) => lectureProg.viewed
     ).length;
@@ -101,7 +93,7 @@ export const updateLectureProgress = async (req, res) => {
 
     await courseProgress.save();
 
-    // 🔔 Send notification for lecture completion
+    // notification send karva mate
     if (lectureJustCompleted) {
       const student = await User.findById(userId);
       const lecture = course.lectures.find(l => l._id.toString() === lectureId);
@@ -165,6 +157,7 @@ export const updateLectureProgress = async (req, res) => {
   }
 };
 
+
 export const markAsCompleted = async (req, res) => {
   try {
     const { courseId } = req.params;
@@ -182,16 +175,16 @@ export const markAsCompleted = async (req, res) => {
     courseProgress.completed = true;
     await courseProgress.save();
 
-    // 🔔 Send notifications for course completion if not already completed
+    // notification send karva mate
     if (!wasAlreadyCompleted) {
       const course = await Course.findById(courseId).populate('creator', 'name');
       const student = await User.findById(userId);
       
-      // Congratulations notification to student
+      //student ne notification send karva mate
       await NotificationService.createNotification({
         recipientId: userId,
         senderId: course.creator._id,
-        title: "🎉 Course Completed!",
+        title: "Course Completed!",
         message: `Congratulations! You've completed "${course.courseTitle}". Your certificate is ready!`,
         data: {
           courseId: course._id,
@@ -201,7 +194,7 @@ export const markAsCompleted = async (req, res) => {
         category: 'achievement'
       });
 
-      // Notify instructor about course completion
+      //instructor ne notification send karva mate
       await NotificationService.createNotification({
         recipientId: course.creator._id,
         senderId: userId,
@@ -223,6 +216,8 @@ export const markAsCompleted = async (req, res) => {
   }
 };
 
+
+//akaha course ne Incomplete karva mate
 export const markAsInCompleted = async (req, res) => {
     try {
       const { courseId } = req.params;

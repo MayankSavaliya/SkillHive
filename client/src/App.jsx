@@ -16,9 +16,6 @@ import ViewCourse from "./pages/instructor/course/ViewCourse";
 import CreateLecture from "./pages/instructor/lecture/CreateLecture";
 import EditLecture from "./pages/instructor/lecture/EditLecture";
 import Students from "./pages/instructor/Students";
-import Analytics from "./pages/instructor/Analytics";
-import Messages from "./pages/instructor/Messages";
-import Settings from "./pages/instructor/Settings";
 import CourseDetail from "./pages/student/CourseDetail";
 import CourseProgress from "./pages/student/CourseProgress";
 import RouteErrorBoundary from "./components/RouteErrorBoundary";
@@ -36,7 +33,7 @@ import AdminSidebar from "./pages/admin/AdminSidebar";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUserManagement from "./pages/admin/AdminUserManagement";
 import AdminCourseManagement from "./pages/admin/AdminCourseManagement";
-import AdminSettings from "./pages/admin/AdminSettings";
+
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminCourseDetails from "./pages/admin/AdminCourseDetails";
 
@@ -215,18 +212,6 @@ const appRouter = createBrowserRouter(
           path: "students",
           element: <Students />,
         },
-        {
-          path: "analytics",
-          element: <Analytics />,
-        },
-        {
-          path: "messages",
-          element: <Messages />,
-        },
-        {
-          path: "settings",
-          element: <Settings />,
-        },
       ],
     },
 
@@ -260,10 +245,6 @@ const appRouter = createBrowserRouter(
         {
           path: "analytics",
           element: <AdminAnalytics />,
-        },
-        {
-          path: "settings",
-          element: <AdminSettings />,
         },
       ],
     },

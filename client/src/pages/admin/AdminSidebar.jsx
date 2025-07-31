@@ -10,7 +10,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu, Users, BarChart3, Settings, TrendingUp, Home } from "lucide-react";
+import { Menu, Users, BarChart3, TrendingUp, Home } from "lucide-react";
 
 const AdminSidebar = () => {
   const sidebarItems = [
@@ -39,11 +39,6 @@ const AdminSidebar = () => {
       icon: School,
       label: "Course Management",
       path: "/admin/courses",
-    },
-    {
-      icon: Settings,
-      label: "Settings",
-      path: "/admin/settings",
     },
   ];
 

@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
     },
     password:{
         type:String,
-        required:false // Make password optional for Firebase users
+        required:false 
     },
     firebaseUid:{
         type:String,

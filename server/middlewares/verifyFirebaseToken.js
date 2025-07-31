@@ -3,15 +3,14 @@ import { User } from '../models/user.model.js';
 
 export const verifyFirebaseToken = async (req, res, next) => {
   try {
-    // Check if Firebase Admin is available
+
     if (!adminAuth) {
       return res.status(503).json({
         success: false,
-        message: 'Firebase authentication service is not available. Please contact administrator.'
+        message: 'Firebase admin is not available.'
       });
     }
 
-    // Get token from Authorization header
     const authHeader = req.header('Authorization');
     let token;
     
@@ -26,20 +25,17 @@ export const verifyFirebaseToken = async (req, res, next) => {
       });
     }
 
-    // Verify Firebase token
     const decodedToken = await adminAuth.verifyIdToken(token);
     
-    // Find or create user in database
     let user = await User.findOne({ firebaseUid: decodedToken.uid });
     
     if (!user) {
-      // Create new user if doesn't exist
       user = await User.create({
         firebaseUid: decodedToken.uid,
         name: decodedToken.name || 'Unknown User',
         email: decodedToken.email,
         photoUrl: decodedToken.picture || null,
-        role: 'student' // default role
+        role: 'student'
       });
     }
     

@@ -12,5 +12,5 @@ export const API_ENDPOINTS = {
   MEDIA: `${API_BASE_URL}/media`
 };
 
-console.log('API Base URL:', API_BASE_URL);
+// console.log('API Base URL:', API_BASE_URL);
 export default API_ENDPOINTS; 

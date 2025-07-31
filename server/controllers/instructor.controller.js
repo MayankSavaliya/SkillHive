@@ -3,37 +3,40 @@ import { CoursePurchase } from "../models/coursePurchase.model.js";
 import { User } from "../models/user.model.js";
 import NotificationService from "../services/notificationService.js";
 
-// Get instructor analytics overview
+
+
+//instructor na analytics page ma data show karva
 export const getInstructorAnalytics = async (req, res) => {
   try {
     const instructorId = req.user._id;
 
-    // Get instructor's courses
+
     const courses = await Course.find({ creator: instructorId });
     const courseIds = courses.map(course => course._id);
 
-    // Get all purchases for instructor's courses
+    
     const purchases = await CoursePurchase.find({
       courseId: { $in: courseIds },
       status: "completed"
     }).populate('courseId').populate('userId');
 
-    // Calculate metrics
+    
     const totalRevenue = purchases.reduce((sum, purchase) => sum + (purchase.amount || 0), 0);
     const totalSales = purchases.length;
     const totalCourses = courses.length;
     const publishedCourses = courses.filter(course => course.isPublished).length;
     
-    // Get unique students
+    
     const uniqueStudents = [...new Set(purchases.map(p => p.userId._id.toString()))];
     const totalStudents = uniqueStudents.length;
 
-    // Calculate average rating (mock for now - can be enhanced with actual ratings)
+    
     const avgRating = 4.6;
 
-    // Get current month revenue
+    
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
+
     const currentMonthRevenue = purchases
       .filter(p => {
         const purchaseDate = new Date(p.createdAt);
@@ -41,7 +44,6 @@ export const getInstructorAnalytics = async (req, res) => {
       })
       .reduce((sum, purchase) => sum + (purchase.amount || 0), 0);
 
-    // Calculate growth (comparing with previous month)
     const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
     const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
     const previousMonthRevenue = purchases
@@ -77,23 +79,23 @@ export const getInstructorAnalytics = async (req, res) => {
   }
 };
 
-// Get instructor revenue data for charts
+//instructor na revenue page ma data show karva
 export const getInstructorRevenue = async (req, res) => {
   try {
     const instructorId = req.user._id;
     const { period = "6months" } = req.query;
 
-    // Get instructor's courses
+    
     const courses = await Course.find({ creator: instructorId });
     const courseIds = courses.map(course => course._id);
 
-    // Get all purchases for instructor's courses
+    
     const purchases = await CoursePurchase.find({
       courseId: { $in: courseIds },
       status: "completed"
     }).populate('courseId');
 
-    // Calculate date range based on period
+   
     const now = new Date();
     let startDate = new Date();
     
@@ -114,10 +116,10 @@ export const getInstructorRevenue = async (req, res) => {
         startDate.setMonth(now.getMonth() - 6);
     }
 
-    // Filter purchases by date range
+
     const filteredPurchases = purchases.filter(p => new Date(p.createdAt) >= startDate);
 
-    // Group revenue by month
+
     const revenueByMonth = {};
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     
@@ -131,9 +133,9 @@ export const getInstructorRevenue = async (req, res) => {
       revenueByMonth[monthKey] += purchase.amount || 0;
     });
 
-    // Convert to array format for charts
+    
     const revenueData = Object.entries(revenueByMonth).map(([month, revenue]) => ({
-      month: month.split(' ')[0], // Just month name
+      month: month.split(' ')[0], 
       revenue,
       fullDate: month
     }));
@@ -151,22 +153,24 @@ export const getInstructorRevenue = async (req, res) => {
   }
 };
 
-// Get instructor students data
+
+
+//instructor na students page ma students ni details mate
 export const getInstructorStudents = async (req, res) => {
   try {
     const instructorId = req.user._id;
 
-    // Get instructor's courses
+    
     const courses = await Course.find({ creator: instructorId });
     const courseIds = courses.map(course => course._id);
 
-    // Get all purchases for instructor's courses with user details
+    
     const purchases = await CoursePurchase.find({
       courseId: { $in: courseIds },
       status: "completed"
     }).populate('courseId').populate('userId');
 
-    // Get unique students with their data
+    
     const studentsMap = new Map();
     
     purchases.forEach(purchase => {
@@ -185,14 +189,14 @@ export const getInstructorStudents = async (req, res) => {
       
       const student = studentsMap.get(studentId);
       student.enrolledCourses.push({
-        courseId: purchase.courseId._id,
+        courseId: purchase.courseId._id,  
         courseTitle: purchase.courseId.courseTitle,
         purchaseDate: purchase.createdAt,
         amount: purchase.amount
       });
       student.totalSpent += purchase.amount || 0;
       
-      // Update last purchase date if this is more recent
+      
       if (new Date(purchase.createdAt) > new Date(student.lastPurchase)) {
         student.lastPurchase = purchase.createdAt;
       }
@@ -214,15 +218,15 @@ export const getInstructorStudents = async (req, res) => {
   } 
 };
 
-// Get course performance metrics
+//dashboard page na course performance mate
 export const getCoursePerformance = async (req, res) => {
   try {
     const instructorId = req.user._id;
 
-    // Get instructor's courses with detailed data
+    
     const courses = await Course.find({ creator: instructorId });
 
-    // Get purchase data for each course
+    
     const coursePerformance = await Promise.all(
       courses.map(async (course) => {
         const purchases = await CoursePurchase.find({
@@ -233,7 +237,7 @@ export const getCoursePerformance = async (req, res) => {
         const totalRevenue = purchases.reduce((sum, p) => sum + (p.amount || 0), 0);
         const totalEnrollments = purchases.length;
 
-        // Get unique students for this course
+        
         const uniqueStudents = [...new Set(purchases.map(p => p.userId.toString()))];
 
         return {
@@ -247,18 +251,16 @@ export const getCoursePerformance = async (req, res) => {
           uniqueStudents: uniqueStudents.length,
           lectureCount: course.lectures ? course.lectures.length : 0, 
           createdAt: course.createdAt,
-          // Mock rating data (can be enhanced with actual rating system)
           avgRating: (Math.random() * 2 + 3).toFixed(1),
-          // Calculate completion rate (mock data for now)
-          completionRate: Math.floor(Math.random() * 40 + 60) // 60-100%
+          completionRate: Math.floor(Math.random() * 40 + 60)
         };
       })
     );
 
-    // Sort by revenue (highest first)
+
     coursePerformance.sort((a, b) => b.totalRevenue - a.totalRevenue);
 
-    // Get category distribution
+
     const categoryStats = {};
     courses.forEach(course => {
       const category = course.category || 'Other';
@@ -272,7 +274,7 @@ export const getCoursePerformance = async (req, res) => {
       categoryStats[category].count++;
     });
 
-    // Add revenue to category stats
+
     coursePerformance.forEach(course => {
       const category = course.category || 'Other';
       if (categoryStats[category]) {
@@ -297,32 +299,32 @@ export const getCoursePerformance = async (req, res) => {
   }
 };
 
-// Get comprehensive instructor dashboard data
+//dashboard page ma data show karva
 export const getInstructorDashboard = async (req, res) => {
   try {
     const instructorId = req.user._id;
 
-    // Get instructor's courses
+    
     const courses = await Course.find({ creator: instructorId });
     const courseIds = courses.map(course => course._id);
 
-    // Get all purchases for instructor's courses
+    
     const purchases = await CoursePurchase.find({
       courseId: { $in: courseIds },
       status: "completed"
     }).populate('courseId').populate('userId');
 
-    // Calculate comprehensive metrics
+    
     const totalRevenue = purchases.reduce((sum, purchase) => sum + (purchase.amount || 0), 0);
     const totalSales = purchases.length;
     const totalCourses = courses.length;
     const publishedCourses = courses.filter(course => course.isPublished).length;
     
-    // Get unique students
+    
     const uniqueStudents = [...new Set(purchases.map(p => p.userId._id.toString()))];
     const totalStudents = uniqueStudents.length;
 
-    // Recent activity (last 30 days)
+    
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     
@@ -330,7 +332,7 @@ export const getInstructorDashboard = async (req, res) => {
     const recentRevenue = recentPurchases.reduce((sum, purchase) => sum + (purchase.amount || 0), 0);
     const newStudentsThisMonth = [...new Set(recentPurchases.map(p => p.userId._id.toString()))].length;
 
-    // Top performing courses
+    
     const coursePerformance = {};
     purchases.forEach(purchase => {
       const courseId = purchase.courseId._id.toString();
@@ -345,6 +347,7 @@ export const getInstructorDashboard = async (req, res) => {
       coursePerformance[courseId].enrollments += 1;
     });
 
+    //only top 5 courses show karva
     const topCourses = Object.values(coursePerformance)
       .sort((a, b) => b.revenue - a.revenue)
       .slice(0, 5);
@@ -360,7 +363,7 @@ export const getInstructorDashboard = async (req, res) => {
         recentRevenue,
         newStudentsThisMonth,
         topCourses,
-        avgRating: 4.6, // Mock - can be enhanced with real ratings
+        avgRating: 4.6, 
       }
     });
   } catch (error) {
@@ -372,55 +375,7 @@ export const getInstructorDashboard = async (req, res) => {
   }
 };
 
-// Get instructor messages/conversations
-export const getInstructorMessages = async (req, res) => {
-  try {
-    const instructorId = req.user._id;
 
-    // For now, return mock data since we don't have a Message model
-    // This can be enhanced with actual message/conversation system
-    const mockMessages = [
-      {
-        id: 1,
-        student: {
-          name: "Alice Johnson",
-          email: "alice@example.com",
-          avatar: "AJ"
-        },
-        lastMessage: "Thank you for the detailed explanation about hooks!",
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-        unread: true,
-        priority: "high",
-        course: "React Fundamentals"
-      },
-      {
-        id: 2,
-        student: {
-          name: "Bob Smith",
-          email: "bob@example.com",
-          avatar: "BS"
-        },
-        lastMessage: "Could you review my assignment?",
-        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-        unread: false,
-        priority: "medium",
-        course: "Node.js Basics"
-      }
-    ];
-
-    return res.status(200).json({
-      success: true,
-      messages: mockMessages,
-      unreadCount: mockMessages.filter(m => m.unread).length
-    });
-  } catch (error) {
-    console.error("Get instructor messages error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to get instructor messages"
-    });
-  }
-};
 
 // Send message to student
 export const sendMessageToStudent = async (req, res) => {
@@ -550,90 +505,3 @@ export const sendAnnouncement = async (req, res) => {
   }
 };
 
-// Get instructor profile
-export const getInstructorProfile = async (req, res) => {
-  try {
-    const instructorId = req.user._id;
-
-    // Get instructor details
-    const instructor = await User.findById(instructorId).select('-password');
-    if (!instructor) {
-      return res.status(404).json({
-        success: false,
-        message: "Instructor not found"
-      });
-    }
-
-    // Get instructor's courses for additional stats
-    const courses = await Course.find({ creator: instructorId });
-    const courseIds = courses.map(course => course._id);
-
-    // Get purchase stats
-    const purchases = await CoursePurchase.find({
-      courseId: { $in: courseIds },
-      status: "completed"
-    });
-
-    const totalRevenue = purchases.reduce((sum, purchase) => sum + (purchase.amount || 0), 0);
-    const totalStudents = [...new Set(purchases.map(p => p.userId.toString()))].length;
-
-    return res.status(200).json({
-      success: true,
-      profile: {
-        ...instructor.toObject(),
-        stats: {
-          totalCourses: courses.length,
-          publishedCourses: courses.filter(c => c.isPublished).length,
-          totalStudents,
-          totalRevenue,
-          avgRating: 4.6, // Mock - can be enhanced with real ratings
-          joinedDate: instructor.createdAt
-        }
-      }
-    });
-  } catch (error) {
-    console.error("Get instructor profile error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to get instructor profile"
-    });
-  }
-};
-
-// Update instructor profile
-export const updateInstructorProfile = async (req, res) => {
-  try {
-    const instructorId = req.user._id;
-    const updateData = req.body;
-
-    // Remove sensitive fields that shouldn't be updated via this endpoint
-    delete updateData.password;
-    delete updateData.role;
-    delete updateData._id;
-
-    const updatedInstructor = await User.findByIdAndUpdate(
-      instructorId,
-      { $set: updateData },
-      { new: true, runValidators: true }
-    ).select('-password');
-
-    if (!updatedInstructor) {
-      return res.status(404).json({
-        success: false,
-        message: "Instructor not found"
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "Profile updated successfully",
-      profile: updatedInstructor
-    });
-  } catch (error) {
-    console.error("Update instructor profile error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to update instructor profile"
-    });
-  }
-};

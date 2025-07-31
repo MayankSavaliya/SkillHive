@@ -29,20 +29,20 @@ router.route("/auth/firebase").post(firebaseAuth);
 router.route("/auth/firebase/signup").post(firebaseSignup);
 router.route("/auth/firebase/logout").post(firebaseLogout);
 
-// Profile routes (Firebase authentication required)
+// Profile fetch karva ne update karva mate route
 router.route("/profile").get(verifyFirebaseToken, getUserProfile);
 router.route("/profile/update").put(verifyFirebaseToken, upload.single("profilePhoto"), updateProfile);
 
 // User role management
 router.route("/request-instructor").put(verifyFirebaseToken, requestInstructorRole);
 
-// Admin routes for user management
+// Admin na user managemnet routes
 router.route("/admin/users").get(verifyFirebaseAdmin, getAllUsers);
 router.route("/admin/users/stats").get(verifyFirebaseAdmin, getUserStats);
 router.route("/admin/users/:userId/role").put(verifyFirebaseAdmin, updateUserRole);
 router.route("/admin/users/:userId").delete(verifyFirebaseAdmin, deleteUser);
 
-// Admin analytics routes
+// Admin na analytics karva mate na route matlab admin dashboard
 router.route("/admin/analytics/enrollments").get(verifyFirebaseAdmin, getEnrollmentAnalytics);
 router.route("/admin/analytics/revenue").get(verifyFirebaseAdmin, getRevenueAnalytics);
 router.route("/admin/analytics/top-courses").get(verifyFirebaseAdmin, getTopPerformingCourses);

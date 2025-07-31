@@ -4,6 +4,7 @@ import { CoursePurchase } from "../models/coursePurchase.model.js";
 import notificationService from "../services/notificationService.js";
 import {deleteMediaFromCloudinary, deleteVideoFromCloudinary, uploadMedia} from "../utils/cloudinary.js";
 
+//first time course creation only with title and category
 export const createCourse = async (req,res) => {
     try {
         const {courseTitle, category} = req.body;
@@ -31,6 +32,8 @@ export const createCourse = async (req,res) => {
     }
 }
 
+
+//serach courses by name , categories , and also sort by price and consider only that are published
 export const searchCourse = async (req,res) => {
     try {
         const {query = "", categories = [], sortByPrice =""} = req.query;
@@ -39,6 +42,8 @@ export const searchCourse = async (req,res) => {
         const searchCriteria = {
             isPublished:true,
             $or:[
+
+                // or means either of the condition is true and regex is like %query% with optoions i mean ignore case
                 {courseTitle: {$regex:query, $options:"i"}},
                 {subTitle: {$regex:query, $options:"i"}},
                 {category: {$regex:query, $options:"i"}},
@@ -71,8 +76,10 @@ export const searchCourse = async (req,res) => {
     }
 }
 
+//get all published courses
 export const getPublishedCourse = async (_,res) => {
     try {
+        //path is used to populate the creator field with the name and photoUrl
         const courses = await Course.find({isPublished:true}).populate({path:"creator", select:"name photoUrl"});
         if(!courses){
             return res.status(404).json({
@@ -89,6 +96,8 @@ export const getPublishedCourse = async (_,res) => {
         })
     }
 }
+
+//get all courses created by the user
 export const getCreatorCourses = async (req,res) => {
     try {
         const userId = req.user._id;
@@ -109,6 +118,8 @@ export const getCreatorCourses = async (req,res) => {
         })
     }
 }
+
+
 export const editCourse = async (req,res) => {
     try {
         const courseId = req.params.courseId;
@@ -577,13 +588,14 @@ export const deleteCourseByAdmin = async (req, res) => {
     }
 };
 
+
+//admin dasborad course stats mate
 export const getCourseStats = async (req, res) => {
     try {
         const totalCourses = await Course.countDocuments();
         const publishedCourses = await Course.countDocuments({ isPublished: true });
         const draftCourses = await Course.countDocuments({ isPublished: false });
         
-        // Get course enrollment stats
         const courseStats = await Course.aggregate([
             {
                 $group: {

@@ -87,13 +87,13 @@ const AdminUserManagement = () => {
         role: newRole 
       }).unwrap();
       
-              showToast.success(`User role updated to ${newRole} successfully`, { showCancel: true });
+      showToast.success(`User role updated to ${newRole} successfully`, { showCancel: true });
       setShowRoleDialog(false);
       setSelectedUser(null);
       setNewRole("");
       refetch();
     } catch (error) {
-              showToast.error(error?.data?.message || "Failed to update user role", { showCancel: true });
+      showToast.error(error?.data?.message || "Failed to update user role", { showCancel: true });
     }
   };
 

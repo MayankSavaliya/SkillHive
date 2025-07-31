@@ -68,14 +68,7 @@ export const instructorApi = createApi({
       invalidatesTags: ["InstructorMessages"],
     }),
 
-    // Get instructor messages/conversations
-    getInstructorMessages: builder.query({
-      query: () => ({
-        url: "/instructor/messages",
-        method: "GET",
-      }),
-      providesTags: ["InstructorMessages"],
-    }),
+
 
     // Send announcement to all students
     sendAnnouncement: builder.mutation({
@@ -95,25 +88,6 @@ export const instructorApi = createApi({
       }),
       providesTags: ["InstructorAnalytics"],
     }),
-
-    // Update instructor profile
-    updateInstructorProfile: builder.mutation({
-      query: (profileData) => ({
-        url: "/instructor/profile",
-        method: "PUT",
-        body: profileData,
-      }),
-      invalidatesTags: ["InstructorAnalytics"],
-    }),
-
-    // Get instructor profile
-    getInstructorProfile: builder.query({
-      query: () => ({
-        url: "/instructor/profile",
-        method: "GET",
-      }),
-      providesTags: ["InstructorAnalytics"],
-    }),
   }),
 });
 
@@ -123,9 +97,7 @@ export const {
   useGetInstructorStudentsQuery,
   useGetCoursePerformanceQuery,
   useSendMessageToStudentMutation,
-  useGetInstructorMessagesQuery,
+
   useSendAnnouncementMutation,
   useGetInstructorDashboardQuery,
-  useUpdateInstructorProfileMutation,
-  useGetInstructorProfileQuery,
 } = instructorApi;

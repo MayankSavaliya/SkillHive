@@ -3,7 +3,8 @@ import { adminAuth } from "../config/firebase.js";
 
 export const firebaseAuth = async (req, res) => {
   try {
-    // Check if Firebase Admin is available
+
+
     if (!adminAuth) {
       return res.status(503).json({
         success: false,
@@ -20,11 +21,9 @@ export const firebaseAuth = async (req, res) => {
       });
     }
 
-    // Verify the Firebase ID token
     const decodedToken = await adminAuth.verifyIdToken(idToken);
     const { uid, email, name, picture } = decodedToken;
 
-    // Check if user exists
     let user = await User.findOne({ 
       $or: [
         { firebaseUid: uid },
@@ -33,7 +32,6 @@ export const firebaseAuth = async (req, res) => {
     });
 
     if (user) {
-      // Update existing user with Firebase UID if not present
       if (!user.firebaseUid) {
         user.firebaseUid = uid;
         await user.save();

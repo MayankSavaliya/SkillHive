@@ -21,6 +21,6 @@ const lectureSchema = new mongoose.Schema({
     required: true,
     default: 1
   }
-},{timestamps:true});
+}, { timestamps: true });
 
 export const Lecture = mongoose.model("Lecture", lectureSchema);

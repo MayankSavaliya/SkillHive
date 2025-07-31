@@ -3,10 +3,20 @@ import { deleteMediaFromCloudinary, uploadMedia } from "../utils/cloudinary.js";
 import { Course } from "../models/course.model.js";
 import { CoursePurchase } from "../models/coursePurchase.model.js";
 
+
+/*
+    getuserprofile - user profile leva mate
+    Update Profile
+    Get All Users
+    Update User Role
+    Delete User
+    Get User Stats
+*/
+
 export const getUserProfile = async (req,res) => {
     try {
         const userId = req.user._id;
-        // Debug log removed for production
+
         const user = await User.findById(userId).select("-password").populate({
             path: "enrolledCourses",
             populate: {
@@ -14,16 +24,21 @@ export const getUserProfile = async (req,res) => {
                 select: "name photoUrl"
             }
         });
+        
+
         if(!user){
             return res.status(404).json({
                 message:"Profile not found",
                 success:false
             })
         }
+
         return res.status(200).json({
             success:true,
             user
         })
+
+
     } catch (error) {
         console.log(error);
         return res.status(500).json({
@@ -32,6 +47,8 @@ export const getUserProfile = async (req,res) => {
         })
     }
 }
+
+
 export const updateProfile = async (req,res) => {
     try {
         const userId = req.user._id;
@@ -45,9 +62,9 @@ export const updateProfile = async (req,res) => {
                 success:false
             }) 
         }
-        // extract public id of the old image from the url is it exists;
+
         if(user.photoUrl){
-            const publicId = user.photoUrl.split("/").pop().split(".")[0]; // extract public id
+            const publicId = user.photoUrl.split("/").pop().split(".")[0]; 
             deleteMediaFromCloudinary(publicId);
         }
 
@@ -73,16 +90,17 @@ export const updateProfile = async (req,res) => {
     }
 }
 
-// Admin functionalities for user management
+//admin mate badha user leva mate
 export const getAllUsers = async (req, res) => {
     try {
         const { page = 1, limit = 10, search = '', role = '' } = req.query;
         const skip = (page - 1) * limit;
 
-        // Build search query
         let query = {};
         if (search) {
             query.$or = [
+
+                //case insensitive search
                 { name: { $regex: search, $options: 'i' } },
                 { email: { $regex: search, $options: 'i' } }
             ];
@@ -122,6 +140,8 @@ export const getAllUsers = async (req, res) => {
     }
 };
 
+
+//have admin ne role update karva mate
 export const updateUserRole = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -162,6 +182,8 @@ export const updateUserRole = async (req, res) => {
     }
 };
 
+
+//admin ne user delete karva mate
 export const deleteUser = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -174,7 +196,7 @@ export const deleteUser = async (req, res) => {
             });
         }
         
-        // Prevent admin from deleting themselves
+        // req ma admin ni id hase atle potane j delete no kari sake
         if (userId === req.user._id.toString()) {
             return res.status(400).json({
                 success: false,
@@ -203,6 +225,7 @@ export const deleteUser = async (req, res) => {
     }
 };
 
+//admin ne user stats leva mate
 export const getUserStats = async (req, res) => {
     try {
         const totalUsers = await User.countDocuments();
@@ -229,9 +252,10 @@ export const getUserStats = async (req, res) => {
     }
 };
 
+//user ne instructor role request karva mate
 export const requestInstructorRole = async (req, res) => {
     try {
-        const userId = req.user._id; // from verifyFirebaseToken middleware
+        const userId = req.user._id;
         
         const user = await User.findById(userId).select("-password");
         if (!user) {
@@ -244,7 +268,7 @@ export const requestInstructorRole = async (req, res) => {
         if (user.role === "instructor") {
             return res.status(400).json({
                 success: false,
-                message: "You are already an instructor"
+                message: "Already an instructor"
             });
         }
         
@@ -255,7 +279,6 @@ export const requestInstructorRole = async (req, res) => {
             });
         }
         
-        // Update user role to instructor
         const updatedUser = await User.findByIdAndUpdate(
             userId,
             { role: "instructor" },
@@ -276,19 +299,19 @@ export const requestInstructorRole = async (req, res) => {
     }
 };
 
-// Admin Analytics Endpoints
+
+
+// Total enrollments, enrollment growth, active courses, enrollment timeline
 export const getEnrollmentAnalytics = async (req, res) => {
     try {
-        // Get total enrollments (only completed purchases)
         const totalEnrollments = await CoursePurchase.countDocuments({ status: 'completed' });
         
-        // Get enrollment growth (last 30 days vs previous 30 days)
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         const sixtyDaysAgo = new Date();
         sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
         
-        const recentEnrollments = await CoursePurchase.countDocuments({
+        const recentEnrollments = await CoursePurchase.countDocuments   ({
             status: 'completed',
             createdAt: { $gte: thirtyDaysAgo }
         });
@@ -302,10 +325,10 @@ export const getEnrollmentAnalytics = async (req, res) => {
             ? ((recentEnrollments - previousEnrollments) / previousEnrollments * 100).toFixed(1)
             : 0;
         
-        // Get active courses (courses with at least one completed enrollment)
+        // course with at least one completed enrollment
         const activeCourses = await CoursePurchase.distinct('courseId', { status: 'completed' }).then(courseIds => courseIds.length);
         
-        // Get enrollment timeline (last 7 days)
+        // last 7 days
         const enrollmentTimeline = [];
         for (let i = 6; i >= 0; i--) {
             const date = new Date();
@@ -363,7 +386,6 @@ export const getRevenueAnalytics = async (req, res) => {
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - days);
         
-        // Get revenue for the period (only completed purchases)
         const purchases = await CoursePurchase.find({
             status: 'completed',
             createdAt: { $gte: startDate }
@@ -565,7 +587,7 @@ export const getAdminCourseDetails = async (req, res) => {
     try {
         const { courseId } = req.params;
         
-        // Get course with all details
+        
         const course = await Course.findById(courseId)
             .populate('creator', 'name email')
             .populate('lectures');
