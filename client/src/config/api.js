@@ -1,4 +1,3 @@
-// Centralized API configuration
 const API_BASE_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:8080';
 
 export const API_ENDPOINTS = {
@@ -12,5 +11,4 @@ export const API_ENDPOINTS = {
   MEDIA: `${API_BASE_URL}/media`
 };
 
-// console.log('API Base URL:', API_BASE_URL);
-export default API_ENDPOINTS; 
+export default API_ENDPOINTS;   

@@ -377,61 +377,6 @@ export const getInstructorDashboard = async (req, res) => {
 
 
 
-// Send message to student
-export const sendMessageToStudent = async (req, res) => {
-  try {
-    const instructorId = req.user._id;
-    const { studentId, message, subject } = req.body;
-
-    if (!studentId || !message) {
-      return res.status(400).json({
-        success: false,
-        message: "Student ID and message are required"
-      });
-    }
-
-    // Verify student exists
-    const student = await User.findById(studentId);
-    if (!student) {
-      return res.status(404).json({
-        success: false,
-        message: "Student not found"
-      });
-    }
-
-    // Create notification for the message
-    await NotificationService.createNotification({
-      recipientId: studentId,
-      senderId: instructorId,
-      type: 'message_received',
-      title: subject || 'New Message from Instructor',
-      message: message.length > 100 ? message.substring(0, 100) + '...' : message,
-      data: {
-        messageId: null, // Would be actual message ID when implementing full messaging
-        customData: {
-          fullMessage: message,
-          subject: subject
-        }
-      },
-      priority: 'medium',
-      category: 'message',
-      actionUrl: '/student/messages',
-      sendEmail: true
-    });
-
-    return res.status(200).json({
-      success: true,
-      message: "Message sent successfully"
-    });
-  } catch (error) {
-    console.error("Send message error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to send message"
-    });
-  }
-};
-
 // Send announcement to all students
 export const sendAnnouncement = async (req, res) => {
   try {

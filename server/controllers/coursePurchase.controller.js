@@ -15,7 +15,6 @@ export const createCheckoutSession = async (req, res) => {
     const course = await Course.findById(courseId);
     if (!course) return res.status(404).json({ message: "Course not found!" });
 
-    // Create a new course purchase record
     const newPurchase = new CoursePurchase({
       courseId,
       userId,
@@ -23,7 +22,6 @@ export const createCheckoutSession = async (req, res) => {
       status: "pending",
     });
     
-    // Create a Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -34,7 +32,7 @@ export const createCheckoutSession = async (req, res) => {
               name: course.courseTitle,
               images: [course.courseThumbnail],
             },
-            unit_amount: course.coursePrice * 100, // Amount in paise (lowest denomination)
+            unit_amount: course.coursePrice * 100, 
           },
           quantity: 1,
         },
@@ -47,7 +45,7 @@ export const createCheckoutSession = async (req, res) => {
         userId: userId.toString(),
       },
       shipping_address_collection: {
-        allowed_countries: ["IN"], // Optionally restrict allowed countries
+        allowed_countries: ["IN"], 
       },
     });
 
@@ -57,13 +55,13 @@ export const createCheckoutSession = async (req, res) => {
         .json({ success: false, message: "Error while creating session" });
     }
 
-    // Save the purchase record
+    
     newPurchase.paymentId = session.id;
     await newPurchase.save();
 
     return res.status(200).json({
       success: true,
-      url: session.url, // Return the Stripe checkout URL
+      url: session.url, 
     });
   } catch (error) {
     console.log(error);
@@ -79,7 +77,7 @@ export const stripeWebhook = async (req, res) => {
 
     const header = stripe.webhooks.generateTestHeaderString({
       payload: payloadString,
-      secret,
+      secret, 
     });
 
     event = stripe.webhooks.constructEvent(payloadString, header, secret);
@@ -88,7 +86,6 @@ export const stripeWebhook = async (req, res) => {
     return res.status(400).send(`Webhook error: ${error.message}`);
   }
 
-  // Handle the checkout session completed event
   if (event.type === "checkout.session.completed") {
     console.log("check session complete is called");
 
@@ -108,7 +105,6 @@ export const stripeWebhook = async (req, res) => {
       }
       purchase.status = "completed";
 
-      // Make all lectures visible by setting `isPreviewFree` to true
       if (purchase.courseId && purchase.courseId.lectures.length > 0) {
         await Lecture.updateMany(
           { _id: { $in: purchase.courseId.lectures } },
@@ -118,25 +114,21 @@ export const stripeWebhook = async (req, res) => {
 
       await purchase.save();
 
-      // Update user's enrolledCourses
       await User.findByIdAndUpdate(
         purchase.userId,
-        { $addToSet: { enrolledCourses: purchase.courseId._id } }, // Add course ID to enrolledCourses
+        { $addToSet: { enrolledCourses: purchase.courseId._id } }, 
         { new: true }
       );
 
-      // Update course to add user ID to enrolledStudents
       await Course.findByIdAndUpdate(
         purchase.courseId._id,
-        { $addToSet: { enrolledStudents: purchase.userId } }, // Add user ID to enrolledStudents
+        { $addToSet: { enrolledStudents: purchase.userId } }, 
         { new: true }
       );
 
-      // 🔔 Send notifications for successful enrollment
       const student = await User.findById(purchase.userId);
       const course = purchase.courseId;
       
-      // Notify instructor about new enrollment
       await notificationService.createNotification({
         recipientId: course.creator,
         senderId: purchase.userId,
@@ -223,11 +215,4 @@ export const getAllPurchasedCourse = async (_, res) => {
   }
 };
 
-export const checkSessionComplete = async (req,res) => {
-    try {
-        // ...existing code...
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({message: "Failed to check session status"});
-    }
-}
+

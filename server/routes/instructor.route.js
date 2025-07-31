@@ -5,7 +5,6 @@ import {
   getInstructorRevenue, 
   getInstructorStudents, 
   getCoursePerformance,
-  sendMessageToStudent,
   sendAnnouncement,
   getInstructorDashboard
 } from "../controllers/instructor.controller.js";
@@ -25,7 +24,6 @@ router.get("/course-performance", getCoursePerformance);
 router.get("/students", getInstructorStudents);
 
 // Message and communication routes
-router.post("/send-message", sendMessageToStudent);
 router.post("/send-announcement", sendAnnouncement);
 
 export default router;

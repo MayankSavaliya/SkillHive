@@ -88,35 +88,17 @@ export const notificationApi = createApi({
       invalidatesTags: ["Notification"],
     }),
 
-    // Create test notification
-    createTestNotification: builder.mutation({
-      query: () => ({
-        url: "/test",
-        method: "POST",
-      }),
-      invalidatesTags: ["Notification"],
-    }),
 
-    // Create bulk notifications (admin/instructor use)
-    createBulkNotifications: builder.mutation({
-      query: (notificationData) => ({
-        url: "/bulk-create",
-        method: "POST",
-        body: notificationData,
-      }),
-      invalidatesTags: ["Notification"],
-    }),
+
+
   }),
 });
 
 export const {
   useGetNotificationsQuery,
   useGetUnreadCountQuery,
-  useGetNotificationMetaQuery,
   useMarkAsReadMutation,
   useMarkAllAsReadMutation,
   useDeleteNotificationMutation,
   useCreateNotificationMutation,
-  useCreateTestNotificationMutation,
-  useCreateBulkNotificationsMutation,
 } = notificationApi; 

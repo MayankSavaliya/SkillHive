@@ -14,7 +14,6 @@ const notificationSchema = new mongoose.Schema({
     default: null
   },
 
-  // Notification title
   title: {
     type: String,
     required: true,
@@ -46,8 +45,7 @@ const notificationSchema = new mongoose.Schema({
   expiresAt: {
     type: Date,
     default: function() {
-      // Default: expire after 30 days
-      return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); //30 days
     }
   },
 
@@ -59,24 +57,20 @@ const notificationSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Indexes for better query performance
 notificationSchema.index({ recipient: 1, createdAt: -1 });
 notificationSchema.index({ recipient: 1, isRead: 1 });
-notificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // Auto-delete expired notifications
+notificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); 
 
-// Method to mark notification as read
 notificationSchema.methods.markAsRead = function() {
   this.isRead = true;
   this.readAt = new Date();
   return this.save();
 };
 
-// Static method to get unread count for a user
 notificationSchema.statics.getUnreadCount = function(userId) {
   return this.countDocuments({ recipient: userId, isRead: false });
 };
 
-// Static method to mark all notifications as read for a user
 notificationSchema.statics.markAllAsRead = function(userId) {
   return this.updateMany(
     { recipient: userId, isRead: false },

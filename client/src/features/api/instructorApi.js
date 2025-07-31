@@ -58,15 +58,7 @@ export const instructorApi = createApi({
       providesTags: ["InstructorAnalytics"],
     }),
 
-    // Send message to student
-    sendMessageToStudent: builder.mutation({
-      query: ({ studentId, message, subject }) => ({
-        url: "/instructor/send-message",
-        method: "POST",
-        body: { studentId, message, subject },
-      }),
-      invalidatesTags: ["InstructorMessages"],
-    }),
+
 
 
 
@@ -96,8 +88,6 @@ export const {
   useGetInstructorRevenueQuery,
   useGetInstructorStudentsQuery,
   useGetCoursePerformanceQuery,
-  useSendMessageToStudentMutation,
-
   useSendAnnouncementMutation,
   useGetInstructorDashboardQuery,
 } = instructorApi;

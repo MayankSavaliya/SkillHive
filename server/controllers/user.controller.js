@@ -4,15 +4,6 @@ import { Course } from "../models/course.model.js";
 import { CoursePurchase } from "../models/coursePurchase.model.js";
 
 
-/*
-    getuserprofile - user profile leva mate
-    Update Profile
-    Get All Users
-    Update User Role
-    Delete User
-    Get User Stats
-*/
-
 export const getUserProfile = async (req,res) => {
     try {
         const userId = req.user._id;

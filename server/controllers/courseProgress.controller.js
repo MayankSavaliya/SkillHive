@@ -114,7 +114,6 @@ export const updateLectureProgress = async (req, res) => {
       });
     }
 
-    // 🔔 Send notifications for course completion and certificate
     if (courseJustCompleted) {
       const student = await User.findById(userId);
       
@@ -132,7 +131,6 @@ export const updateLectureProgress = async (req, res) => {
         category: 'achievement'
       });
 
-      // Notify instructor about course completion
       await NotificationService.createNotification({
         recipientId: course.creator._id,
         senderId: userId,
@@ -175,7 +173,6 @@ export const markAsCompleted = async (req, res) => {
     courseProgress.completed = true;
     await courseProgress.save();
 
-    // notification send karva mate
     if (!wasAlreadyCompleted) {
       const course = await Course.findById(courseId).populate('creator', 'name');
       const student = await User.findById(userId);
@@ -194,7 +191,6 @@ export const markAsCompleted = async (req, res) => {
         category: 'achievement'
       });
 
-      //instructor ne notification send karva mate
       await NotificationService.createNotification({
         recipientId: course.creator._id,
         senderId: userId,
@@ -217,7 +213,6 @@ export const markAsCompleted = async (req, res) => {
 };
 
 
-//akaha course ne Incomplete karva mate
 export const markAsInCompleted = async (req, res) => {
     try {
       const { courseId } = req.params;

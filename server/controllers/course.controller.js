@@ -136,13 +136,11 @@ export const editCourse = async (req,res) => {
         if(thumbnail){
             if(course.courseThumbnail){
                 const publicId = course.courseThumbnail.split("/").pop().split(".")[0];
-                await deleteMediaFromCloudinary(publicId); // delete old image
+                await deleteMediaFromCloudinary(publicId);  
             }
-            // upload a thumbnail on clourdinary
             courseThumbnail = await uploadMedia(thumbnail.buffer);
         }
 
-        // Parse JSON strings for arrays
         let parsedWhatYouWillLearn = [];
         let parsedRequirements = [];
 
@@ -150,7 +148,6 @@ export const editCourse = async (req,res) => {
             try {
                 parsedWhatYouWillLearn = JSON.parse(whatYouWillLearn);
             } catch (e) {
-                // If parsing fails, split by newlines as fallback
                 parsedWhatYouWillLearn = whatYouWillLearn.split('\n').filter(item => item.trim());
             }
         }
@@ -159,7 +156,6 @@ export const editCourse = async (req,res) => {
             try {
                 parsedRequirements = JSON.parse(requirements);
             } catch (e) {
-                // If parsing fails, split by newlines as fallback
                 parsedRequirements = requirements.split('\n').filter(item => item.trim());
             }
         }
@@ -177,7 +173,6 @@ export const editCourse = async (req,res) => {
             language
         };
 
-        // Remove undefined values
         Object.keys(updateData).forEach(key => {
             if (updateData[key] === undefined) {
                 delete updateData[key];
@@ -231,7 +226,6 @@ export const createLecture = async (req,res) => {
             })
         };
 
-        // Get the course to determine next lecture index
         const course = await Course.findById(courseId).populate("lectures");
         if(!course){
             return res.status(404).json({
@@ -239,10 +233,8 @@ export const createLecture = async (req,res) => {
             })
         }
 
-        // Calculate next lecture index
         const nextIndex = course.lectures.length + 1;
 
-        // create lecture with default values for new fields
         const lecture = await Lecture.create({
             lectureTitle,
             description: "",
@@ -250,7 +242,6 @@ export const createLecture = async (req,res) => {
             lectureIndex: nextIndex
         });
 
-        // Add lecture to course
         course.lectures.push(lecture._id);
         await course.save();
 
@@ -313,16 +304,13 @@ export const editLecture = async (req,res) => {
         await lecture.save();
         
 
-        // Ensure the course still has the lecture id if it was not aleardy added;
         const course = await Course.findById(courseId).populate('creator', 'name');
         if(course && !course.lectures.includes(lecture._id)){
             course.lectures.push(lecture._id);
             await course.save();
         };
 
-        // 🔔 Send notification if video was just added (not just editing)
         if (!hadVideo && videoInfo?.videoUrl) {
-            // Get enrolled students for this course
             const enrolledStudents = await CoursePurchase.find({
                 courseId: courseId,
                 status: "completed"
@@ -364,12 +352,10 @@ export const removeLecture = async (req,res) => {
                 message:"Lecture not found!"
             });
         }
-        // delete the lecture from couldinary as well
         if(lecture.publicId){
             await deleteVideoFromCloudinary(lecture.publicId);
         }
 
-        // Remove the lecture reference from the associated course
         await Course.updateOne(
             {lectures:lectureId}, // find the course that contains the lecture
             {$pull:{lectures:lectureId}} // Remove the lectures id from the lectures array
@@ -424,9 +410,7 @@ export const togglePublishCourse = async (req,res) => {
         course.isPublished = publish === "true";
         await course.save();
 
-        // 🔔 Send notifications when course is newly published
         if (!wasPublished && course.isPublished) {
-            // Get students who have enrolled in instructor's other courses
             const instructorCourses = await Course.find({ creator: req.user._id });
             const courseIds = instructorCourses.map(c => c._id);
             
@@ -435,7 +419,6 @@ export const togglePublishCourse = async (req,res) => {
                 status: "completed"
             }).distinct('userId');
             
-            // Notify interested students about new course
             if (enrolledStudents.length > 0) {
                 await notificationService.createBulkNotifications({
                     recipientIds: enrolledStudents,
@@ -466,7 +449,6 @@ export const getAllCoursesForAdmin = async (req, res) => {
         const { page = 1, limit = 10, search = '', category = '', status = '' } = req.query;
         const skip = (page - 1) * limit;
 
-        // Build search query
         let query = {};
         if (search) {
             query.$or = [
@@ -553,13 +535,11 @@ export const deleteCourseByAdmin = async (req, res) => {
             });
         }
         
-        // Delete course thumbnail from cloudinary if exists
         if (course.courseThumbnail) {
             const publicId = course.courseThumbnail.split("/").pop().split(".")[0];
             await deleteMediaFromCloudinary(publicId);
         }
         
-        // Delete all lecture videos from cloudinary
         if (course.lectures && course.lectures.length > 0) {
             for (const lecture of course.lectures) {
                 if (lecture.videoUrl) {
@@ -569,10 +549,8 @@ export const deleteCourseByAdmin = async (req, res) => {
             }
         }
         
-        // Delete all lectures
         await Lecture.deleteMany({ _id: { $in: course.lectures } });
         
-        // Delete the course
         await Course.findByIdAndDelete(courseId);
         
         return res.status(200).json({
@@ -611,7 +589,6 @@ export const getCourseStats = async (req, res) => {
             }
         ]);
         
-        // Get top categories
         const topCategories = await Course.aggregate([
             { $group: { _id: "$category", count: { $sum: 1 } } },
             { $sort: { count: -1 } },

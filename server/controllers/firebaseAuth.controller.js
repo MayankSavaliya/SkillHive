@@ -37,7 +37,6 @@ export const firebaseAuth = async (req, res) => {
         await user.save();
       }
       
-      // Update user info if provided
       if (userData?.name && userData.name !== user.name) {
         user.name = userData.name;
       }
@@ -46,7 +45,6 @@ export const firebaseAuth = async (req, res) => {
       }
       await user.save();
     } else {
-      // Create new user
       user = await User.create({
         firebaseUid: uid,
         name: userData?.name || name || 'Unknown User',
@@ -56,7 +54,6 @@ export const firebaseAuth = async (req, res) => {
       });
     }
 
-    // Return success response
     const responseUser = {
       _id: user._id,
       name: user.name,
@@ -85,7 +82,6 @@ export const firebaseAuth = async (req, res) => {
 
 export const firebaseSignup = async (req, res) => {
   try {
-    // Check if Firebase Admin is available
     if (!adminAuth) {
       return res.status(503).json({
         success: false,
@@ -102,11 +98,9 @@ export const firebaseSignup = async (req, res) => {
       });
     }
 
-    // Verify the Firebase ID token
     const decodedToken = await adminAuth.verifyIdToken(idToken);
     const { uid, email } = decodedToken;
 
-    // Check if user already exists
     const existingUser = await User.findOne({ 
       $or: [
         { firebaseUid: uid },
@@ -121,7 +115,6 @@ export const firebaseSignup = async (req, res) => {
       });
     }
 
-    // Create new user
     const user = await User.create({
       firebaseUid: uid,
       name: userData.name,
@@ -132,9 +125,9 @@ export const firebaseSignup = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "🎉 Welcome to SkillHive! Your account has been created successfully.",
+      message: "Welcome to SkillHive! Your account has been created successfully.",
       user: {
-        id: user._id,
+        id: user._id, 
         name: user.name,
         email: user.email,
         role: user.role,
