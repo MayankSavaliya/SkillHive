@@ -15,20 +15,16 @@ import socketManager from "./utils/socketManager.js";
 
 dotenv.config({});
 
-// Initialize Firebase
 initializeFirebase();
 
-// call database connection here
 connectDB();
 const app = express();
 const server = createServer(app);
 
 const PORT = process.env.PORT || 8080;
 
-// Initialize Socket.io
 socketManager.initialize(server);
 
-// default middleware
 app.use(express.json());
 
 app.use(cors({
@@ -37,7 +33,7 @@ app.use(cors({
 }));
  
 
-// apis
+
 app.get("/", (req, res)=> {
     res.send("SkillHive Server is running");
 });

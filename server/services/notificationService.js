@@ -2,7 +2,7 @@ import { Notification } from '../models/notification.model.js';
 import socketManager from '../utils/socketManager.js';
 
 class NotificationService {
-  // Create a single notification
+
   async createNotification({ recipientId, senderId = null, title, message, data = null, actionUrl = null, expiresAt = null }) {
     try {
       const notification = new Notification({
@@ -17,10 +17,8 @@ class NotificationService {
 
       const savedNotification = await notification.save();
       
-      // Populate sender info for real-time delivery
       await savedNotification.populate('sender', 'name email photoUrl');
 
-      // Send real-time notification
       if (socketManager && socketManager.io) {
         socketManager.sendNotificationToUser(recipientId, savedNotification);
       }
@@ -32,7 +30,6 @@ class NotificationService {
     }
   }
 
-  // Create multiple notifications
   async createBulkNotifications({ recipientIds, senderId = null, title, message, data = null, actionUrl = null, expiresAt = null }) {
     try {
       const notifications = recipientIds.map(recipientId => ({
@@ -47,13 +44,13 @@ class NotificationService {
 
       const savedNotifications = await Notification.insertMany(notifications);
       
-      // Populate sender info
+    
       const populatedNotifications = await Notification.populate(savedNotifications, {
         path: 'sender',
         select: 'name email photoUrl'
       });
 
-      // Send real-time notifications
+      
       if (socketManager && socketManager.io) {
         recipientIds.forEach((recipientId, index) => {
           socketManager.sendNotificationToUser(recipientId, populatedNotifications[index]);
@@ -67,7 +64,6 @@ class NotificationService {
     }
   }
 
-  // Get user notifications with pagination
   async getUserNotifications(userId, { page = 1, limit = 20, unreadOnly = false } = {}) {
     try {
       const query = { recipient: userId };
@@ -75,7 +71,7 @@ class NotificationService {
         query.isRead = false;
       }
 
-      // Remove expired notifications
+      
       await Notification.deleteMany({
         recipient: userId,
         expiresAt: { $lte: new Date() }
@@ -112,7 +108,7 @@ class NotificationService {
     }
   }
 
-  // Get unread count
+  
   async getUnreadCount(userId) {
     try {
       return await Notification.countDocuments({
@@ -126,7 +122,7 @@ class NotificationService {
     }
   }
 
-  // Mark notification as read
+  
   async markAsRead(notificationId, userId) {
     try {
       const notification = await Notification.findOneAndUpdate(
@@ -142,7 +138,7 @@ class NotificationService {
     }
   }
 
-  // Mark all notifications as read
+  
   async markAllAsRead(userId) {
     try {
       const result = await Notification.updateMany(
@@ -157,7 +153,7 @@ class NotificationService {
     }
   }
 
-  // Delete notification
+  
   async deleteNotification(notificationId, userId) {
     try {
       const notification = await Notification.findOneAndDelete({
@@ -172,7 +168,7 @@ class NotificationService {
     }
   }
 
-  // Delete all notifications for user
+  
   async deleteAllNotifications(userId) {
     try {
       const result = await Notification.deleteMany({
@@ -186,7 +182,7 @@ class NotificationService {
     }
   }
 
-  // Clean expired notifications
+  
   async cleanExpiredNotifications() {
     try {
       const result = await Notification.deleteMany({

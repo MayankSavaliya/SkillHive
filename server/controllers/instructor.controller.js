@@ -415,7 +415,6 @@ export const sendAnnouncement = async (req, res) => {
 
     const uniqueStudents = [...new Set(purchases.map(p => p.userId._id.toString()))];
 
-    // Create notifications for all students
     if (uniqueStudents.length > 0) {
       await NotificationService.createBulkNotifications({
         recipientIds: uniqueStudents,

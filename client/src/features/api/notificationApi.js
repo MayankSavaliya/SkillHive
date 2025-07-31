@@ -22,7 +22,6 @@ export const notificationApi = createApi({
   }),
   tagTypes: ["Notification"],
   endpoints: (builder) => ({
-    // Get user notifications
     getNotifications: builder.query({
       query: ({ page = 1, limit = 20, unreadOnly = false } = {}) => ({
         url: "/",
@@ -32,7 +31,6 @@ export const notificationApi = createApi({
       providesTags: ["Notification"],
     }),
 
-    // Get unread notification count
     getUnreadCount: builder.query({
       query: () => ({
         url: "/unread-count",
@@ -42,7 +40,6 @@ export const notificationApi = createApi({
       providesTags: ["Notification"],
     }),
 
-    // Get notification metadata (types, categories)
     getNotificationMeta: builder.query({
       query: () => ({
         url: "/meta",
@@ -51,7 +48,6 @@ export const notificationApi = createApi({
       providesTags: ["Notification"],
     }),
 
-    // Mark notification as read
     markAsRead: builder.mutation({
       query: (notificationId) => ({
         url: `/${notificationId}/read`,
@@ -60,7 +56,6 @@ export const notificationApi = createApi({
       invalidatesTags: ["Notification"],
     }),
 
-    // Mark all notifications as read
     markAllAsRead: builder.mutation({
       query: () => ({
         url: "/mark-all-read",
@@ -69,7 +64,6 @@ export const notificationApi = createApi({
       invalidatesTags: ["Notification"],
     }),
 
-    // Delete notification
     deleteNotification: builder.mutation({
       query: (notificationId) => ({
         url: `/${notificationId}`,
@@ -78,7 +72,6 @@ export const notificationApi = createApi({
       invalidatesTags: ["Notification"],
     }),
 
-    // Create notification (admin/instructor use)
     createNotification: builder.mutation({
       query: (notificationData) => ({
         url: "/create",
@@ -87,7 +80,7 @@ export const notificationApi = createApi({
       }),
       invalidatesTags: ["Notification"],
     }),
-
+    
 
 
 

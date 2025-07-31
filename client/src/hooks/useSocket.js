@@ -16,12 +16,10 @@ const useSocket = () => {
   const { isConnected } = useSelector((state) => state.notification);
 
   useEffect(() => {
-    // Only connect if user is authenticated
     if (!token || !user) {
-      return;
+      return; 
     }
 
-    // Initialize socket connection
     socketRef.current = io(import.meta.env.VITE_SERVER_URL || 'http://localhost:8080', {
       auth: {
         token: token
@@ -31,7 +29,6 @@ const useSocket = () => {
 
     const socket = socketRef.current;
 
-    // Connection events
     socket.on('connect', () => {
       dispatch(setConnectionStatus(true));
     });
@@ -44,7 +41,6 @@ const useSocket = () => {
       dispatch(setConnectionStatus(false));
     });
 
-    // Notification events
     socket.on('new_notification', (notification) => {
       dispatch(addNotification(notification));
     });
@@ -57,35 +53,29 @@ const useSocket = () => {
       dispatch(markAllAsRead());
     });
 
-    // Cleanup on unmount
     return () => {
       socket.disconnect();
       dispatch(setConnectionStatus(false));
     };
   }, [token, user, dispatch]);
 
-  // Socket utility methods
   const socketMethods = {
-    // Mark notification as read (emit to server)
     markNotificationRead: (notificationId) => {
       if (socketRef.current) {
         socketRef.current.emit('mark_notification_read', notificationId);
       }
     },
 
-    // Mark all notifications as read (emit to server)
     markAllNotificationsRead: () => {
       if (socketRef.current) {
         socketRef.current.emit('mark_all_notifications_read');
       }
     },
 
-    // Check if socket is connected
     isConnected: () => {
       return socketRef.current?.connected || false;
     },
 
-    // Get socket instance (for advanced usage)
     getSocket: () => {
       return socketRef.current;
     }

@@ -22,7 +22,7 @@ export const instructorApi = createApi({
     }
   }),
   endpoints: (builder) => ({
-    // Get instructor analytics
+
     getInstructorAnalytics: builder.query({
       query: () => ({
         url: "/instructor/analytics",
@@ -31,7 +31,7 @@ export const instructorApi = createApi({
       providesTags: ["InstructorAnalytics"],
     }),
     
-    // Get instructor revenue data
+
     getInstructorRevenue: builder.query({
       query: (period = "6months") => ({
         url: `/instructor/revenue?period=${period}`,
@@ -40,7 +40,7 @@ export const instructorApi = createApi({
       providesTags: ["InstructorAnalytics"],
     }),
     
-    // Get instructor students data
+
     getInstructorStudents: builder.query({
       query: () => ({
         url: "/instructor/students",
@@ -49,7 +49,7 @@ export const instructorApi = createApi({
       providesTags: ["InstructorStudents"],
     }),
     
-    // Get course performance metrics
+
     getCoursePerformance: builder.query({
       query: () => ({
         url: "/instructor/course-performance",
@@ -62,7 +62,7 @@ export const instructorApi = createApi({
 
 
 
-    // Send announcement to all students
+
     sendAnnouncement: builder.mutation({
       query: ({ title, message, courseId }) => ({
         url: "/instructor/send-announcement",
@@ -72,7 +72,7 @@ export const instructorApi = createApi({
       invalidatesTags: ["InstructorMessages"],
     }),
 
-    // Get instructor dashboard summary
+
     getInstructorDashboard: builder.query({
       query: () => ({
         url: "/instructor/dashboard",

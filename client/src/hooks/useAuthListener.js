@@ -21,14 +21,12 @@ const useAuthListener = () => {
             photoUrl: firebaseUser.photoURL
           };
 
-          // Sync with backend
           const response = await firebaseAuth({
             idToken: token,
             userData
           });
 
           if (response.data?.success) {
-            // Store both user data and Firebase token in Redux
             dispatch(userLoggedIn({ 
               user: response.data.user, 
               token: token 
@@ -44,18 +42,17 @@ const useAuthListener = () => {
       setLoading(false);
     });
 
-    // Set up token refresh every 30 minutes
     const tokenRefreshInterval = setInterval(async () => {
       const currentUser = auth.currentUser;
       if (currentUser) {
         try {
-          const newToken = await currentUser.getIdToken(true); // Force refresh
+          const newToken = await currentUser.getIdToken(true);
           dispatch(updateToken(newToken));
         } catch (error) {
           console.error('Token refresh failed:', error);
         }
       }
-    }, 30 * 60 * 1000); // 30 minutes
+    }, 30 * 60 * 1000);
 
     return () => {
       unsubscribe();

@@ -22,7 +22,6 @@ export const adminApi = createApi({
     }),
     tagTypes: ['User', 'Course', 'Stats'],
     endpoints: (builder) => ({
-        // User Management
         getAllUsers: builder.query({
             query: ({ page = 1, limit = 10, search = '', role = '' }) => ({
                 url: `user/admin/users?page=${page}&limit=${limit}&search=${search}&role=${role}`,
@@ -53,7 +52,6 @@ export const adminApi = createApi({
             invalidatesTags: ['User', 'Stats']
         }),
         
-        // Course Management
         getAllCourses: builder.query({
             query: ({ page = 1, limit = 10, search = '', category = '', status = '' }) => ({
                 url: `course/admin/courses?page=${page}&limit=${limit}&search=${search}&category=${category}&status=${status}`,
@@ -83,15 +81,13 @@ export const adminApi = createApi({
             invalidatesTags: ['Course', 'Stats']
         }),
         
-        // Request Instructor Role
         requestInstructorRole: builder.mutation({
             query: () => ({
                 url: "user/request-instructor",
                 method: "PUT"
             })
         }),
-        
-        // Analytics Endpoints
+            
         getEnrollmentAnalytics: builder.query({
             query: () => ({
                 url: "user/admin/analytics/enrollments",

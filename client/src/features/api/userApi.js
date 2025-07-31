@@ -22,7 +22,6 @@ export const userApi = createApi({
     }
   }),
   endpoints: (builder) => ({
-    // Admin endpoints for user management
     getAllUsers: builder.query({
       query: () => "/admin/users",
       providesTags: ["Users"],

@@ -58,7 +58,7 @@ export const authApi = createApi({
                 }
             }
         }),
-        // Firebase authentication endpoints
+        
         firebaseAuth: builder.mutation({
             query: (authData) => ({
                 url:"auth/firebase",
