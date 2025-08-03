@@ -6,7 +6,6 @@ import {
   markAsRead,
   markAllAsRead,
   setConnectionStatus,
-  setUnreadCount
 } from '../features/notificationSlice';
 
 const useSocket = () => {
