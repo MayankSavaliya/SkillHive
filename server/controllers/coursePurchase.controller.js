@@ -70,8 +70,7 @@ export const createCheckoutSession = async (req, res) => {
 
 export const stripeWebhook = async (req, res) => {
   let event;
-  console.log(req.body);
-  console.log(req.body.toString());
+
   try {
     const payloadString = req.body.toString();
     const secret = process.env.WEBHOOK_ENDPOINT_SECRET;
@@ -139,7 +138,6 @@ export const stripeWebhook = async (req, res) => {
         actionUrl: `/instructor/course/${course._id}`
       });
 
-      // Welcome notification to student
       await notificationService.createNotification({
         recipientId: purchase.userId,
         senderId: course.creator,
@@ -170,6 +168,7 @@ export const getCourseDetailWithPurchaseStatus = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Course not found"
+        
       });
     }
 
